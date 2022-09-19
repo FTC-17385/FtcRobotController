@@ -108,10 +108,11 @@ public class auto_test extends LinearOpMode {
                     telemetry.addData("Info", "No results");
                 } else {
                     for (Classifier.Recognition r : results) {
-                        String item = String.format("%s: %.2f", r.getTitle(), r.getConfidence());
+                        String item = String.format("%s", r.getTitle());
                         telemetry.addData("Found", item);
-                        if (r.getTitle() == "A" && r.getConfidence() >= 0.9){
-                            drive(0.5, 1,0);
+                        if (item.equals("A")){
+                            drive(1.0, 90, 90);
+
                         }//else if (r.getTitle())
                     }
                 }
@@ -128,50 +129,12 @@ public class auto_test extends LinearOpMode {
         }
 
         waitForStart();
-        if (opModeIsActive()) {
 
-            //segment 1
-            //drive(0.7, 30, 15);
 
-            runtime.reset(); // reset elapsed time timer
 
-            //segment 2 - lift arm, drive to shipping hub, outtake freight
-            while (opModeIsActive() && runtime.seconds() <= 7) {
-
-                //lift arm and hold
-                /**
-                 Arm.setTargetPosition(120);
-                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                 Arm.setPower(0.3);
-                 */
-                //drive forward for 1 second
-                while (runtime.seconds() > 2 && runtime.seconds() <= 3) {
-                    drive(0.4, 4, 4);
-                }
-
-                //run intake
-
-                /**
-                 while (runtime.seconds() > 4 && runtime.seconds() <= 7) {
-                 Intake.setPower(-0.6);
-                 }
-
-                 // turn off arm and intake
-                 //Arm.setPower(0);
-                 Intake.setPower(0);
-
-                 */
-
-                //segment 3 - reverse to get better angle
-                drive(0.7, -15, -30);
-
-                //segment 4 - drive into warehouse
-                drive(1, 90, 90);
-            }
 
 
         }
 
     }
 
-}
