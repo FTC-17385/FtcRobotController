@@ -21,8 +21,7 @@ import org.firstinspires.ftc.teamcode.tfrec.classification.Classifier;
 
 public class visionTest extends LinearOpMode {
 
-    //private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
-    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+
     private Detector tfDetector = null;
     private ElapsedTime runtime = new ElapsedTime();
     private static String MODEL_FILE_NAME = "model_unquant.tflite";
@@ -55,6 +54,7 @@ public class visionTest extends LinearOpMode {
                     for (Classifier.Recognition r : results) {
                         String item = String.format("%s: %.2f", r.getTitle(), r.getConfidence());
                         telemetry.addData("Found", item);
+
                     }
                 }
                 telemetry.update();

@@ -7,6 +7,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.units.qual.A;
+import org.firstinspires.ftc.teamcode.tfrec.Detector;
+import org.firstinspires.ftc.teamcode.tfrec.classification.Classifier;
+
+import java.util.List;
+
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous (name = "Auto Test")
 
@@ -17,6 +23,14 @@ public class auto_test extends LinearOpMode {
     //private DcMotor Arm;
     //private DcMotor Intake;
 
+    private Detector tfDetector = null;
+    //Create elapsed time variable and an instance of elapsed time
+    private ElapsedTime runtime = new ElapsedTime();
+
+    private static String MODEL_FILE_NAME = "model_unquant.tflite";
+    private static String LABEL_FILE_NAME = "labels.txt";
+    private static Classifier.Model MODEL_TYPE = Classifier.Model.FLOAT_EFFICIENTNET;
+
     //Convert from the counts per revolution of the encoder to counts per inch
     static final double HD_COUNTS_PER_REV = 28;
     static final double DRIVE_GEAR_REDUCTION = 20.15293;
@@ -24,8 +38,7 @@ public class auto_test extends LinearOpMode {
     static final double DRIVE_COUNTS_PER_MM = (HD_COUNTS_PER_REV * DRIVE_GEAR_REDUCTION) / WHEEL_CIRCUMFERENCE_MM;
     static final double DRIVE_COUNTS_PER_IN = DRIVE_COUNTS_PER_MM * 25.4;
 
-    //Create elapsed time variable and an instance of elapsed time
-    private ElapsedTime runtime = new ElapsedTime();
+
 
     // Drive function with 3 parameters
     private void drive(double power, double leftInches, double rightInches) {
@@ -73,11 +86,52 @@ public class auto_test extends LinearOpMode {
 
         LeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
+        try {
+            try {
+                tfDetector = new Detector(MODEL_TYPE, MODEL_FILE_NAME, LABEL_FILE_NAME, hardwareMap.appContext, telemetry);
+                tfDetector.activate();
+            } catch (Exception ex) {
+                telemetry.addData("Error", String.format("Unable to initialize Detector. %s", ex.getMessage()));
+                sleep(3000);
+                return;
+            }
+            telemetry.addData("Detector", "Ready");
+            telemetry.update();
+            // Wait for the game to start (driver presses PLAY)
+            waitForStart();
+            runtime.reset();
+
+            while (opModeIsActive()) {
+                List<Classifier.Recognition> results = tfDetector.getLastResults();
+                if (results == null || results.size() == 0) {
+                    telemetry.addData("Info", "No results");
+                } else {
+                    for (Classifier.Recognition r : results) {
+                        String item = String.format("%s: %.2f", r.getTitle(), r.getConfidence());
+                        telemetry.addData("Found", item);
+                        if (r.getTitle() == "A" && r.getConfidence() >= 0.9){
+                            drive(0.5, 1,0);
+                        }//else if (r.getTitle())
+                    }
+                }
+                telemetry.update();
+            }
+        } catch (Exception ex) {
+            telemetry.addData("Init Error", ex.getMessage());
+            telemetry.update();
+        } finally {
+            if (tfDetector != null) {
+                tfDetector.stopProcessing();
+            }
+
+        }
+
         waitForStart();
         if (opModeIsActive()) {
 
             //segment 1
-            drive(0.7, 30, 15);
+            //drive(0.7, 30, 15);
 
             runtime.reset(); // reset elapsed time timer
 
