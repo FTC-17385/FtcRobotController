@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 29 //try 23 if vision not working
+    compileSdkVersion 29
 
     signingConfigs {
         release {
@@ -92,12 +92,17 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
             ndk {
                 abiFilters "armeabi-v7a"//, "arm64-v8a"
             }
         }
         debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
             debuggable true
             jniDebuggable true
             ndk {

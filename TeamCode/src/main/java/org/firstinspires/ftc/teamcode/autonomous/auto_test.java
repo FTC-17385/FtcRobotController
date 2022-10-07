@@ -32,9 +32,9 @@ public class auto_test extends LinearOpMode {
     private static Classifier.Model MODEL_TYPE = Classifier.Model.FLOAT_EFFICIENTNET;
 
     //Convert from the counts per revolution of the encoder to counts per inch
-    static final double HD_COUNTS_PER_REV = 28;
-    static final double DRIVE_GEAR_REDUCTION = 20.15293;
-    static final double WHEEL_CIRCUMFERENCE_MM = 90 * Math.PI;
+    static final double HD_COUNTS_PER_REV = 537.7 * 4; //28;
+    static final double DRIVE_GEAR_REDUCTION = 1; //20.15293;
+    static final double WHEEL_CIRCUMFERENCE_MM = 96 * Math.PI;
     static final double DRIVE_COUNTS_PER_MM = (HD_COUNTS_PER_REV * DRIVE_GEAR_REDUCTION) / WHEEL_CIRCUMFERENCE_MM;
     static final double DRIVE_COUNTS_PER_IN = DRIVE_COUNTS_PER_MM * 25.4;
 
@@ -84,7 +84,7 @@ public class auto_test extends LinearOpMode {
         //Intake = hardwareMap.get(DcMotor.class, "Intake");
 
 
-        LeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        RightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         try {
@@ -102,22 +102,39 @@ public class auto_test extends LinearOpMode {
             waitForStart();
             runtime.reset();
 
+            String item = "ngruimingsb";
             while (opModeIsActive()) {
                 List<Classifier.Recognition> results = tfDetector.getLastResults();
                 if (results == null || results.size() == 0) {
                     telemetry.addData("Info", "No results");
                 } else {
                     for (Classifier.Recognition r : results) {
-                        String item = String.format("%s", r.getTitle());
+                        item = String.format("%s", r.getTitle());
                         telemetry.addData("Found", item);
-                        if (item.equals("A")){
-                            drive(1.0, 90, 90);
 
-                        }//else if (r.getTitle())
                     }
+
                 }
+
                 telemetry.update();
+
             }
+
+
+
+            if (item.equals("A")){
+                drive(1.0, 21, 21);
+            }
+            if (item.equals("B")){
+                drive(1.0,0,20);
+            }
+            if (item.equals("C")){
+                drive(1.0, 20, 0);
+            }
+
+
+
+
         } catch (Exception ex) {
             telemetry.addData("Init Error", ex.getMessage());
             telemetry.update();
@@ -126,9 +143,12 @@ public class auto_test extends LinearOpMode {
                 tfDetector.stopProcessing();
             }
 
+
+
+
         }
 
-        waitForStart();
+        //waitForStart();
 
 
 

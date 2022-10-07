@@ -14,12 +14,12 @@ public class TeleOp extends OpMode {
     //protected DcMotor backRight;
     @Override
     public void init() {
-        frontLeft = hardwareMap.get(DcMotor.class, "LeftMotor");
-        frontRight = hardwareMap.get(DcMotor.class, "RightMotor");
+
         //backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         //backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        //frontRight.setDirection(DcMotor.Direction.FORWARD);
         //backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
