@@ -9,7 +9,7 @@ public class helloworldKolton extends OpMode {
     public void init() {
         telemetry.addData("Hello", "Kolton");
     }
-/* This is the initilisatin point of the code */
+/* This loops the op mode */
     @Override
     public void loop() {
 
