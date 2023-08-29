@@ -8,6 +8,10 @@ public class PrimitiveTypesEG extends OpMode {
     @Override
     public void init() {
         int teamNumber = 17385;
+        /*
+        The motorSpeed caps at one
+        The boolean is yes or no
+         */
         double motorSpeed = 0.5;
         boolean touchSensorPressed = true;
         int gradeNumber = 11;
