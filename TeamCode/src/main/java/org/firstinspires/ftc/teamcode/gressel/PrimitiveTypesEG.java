@@ -16,6 +16,9 @@ public class PrimitiveTypesEG extends OpMode {
         boolean touchSensorPressed = true;
         int gradeNumber = 11;
         String myName= "Eric Gressel";
+        /*
+        This displays all the info
+         */
         telemetry.addData("Team Number", teamNumber);
         telemetry.addData("Motor Speed", motorSpeed);
         telemetry.addData("Touch Sensor", touchSensorPressed);
