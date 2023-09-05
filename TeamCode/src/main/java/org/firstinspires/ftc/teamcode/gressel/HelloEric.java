@@ -9,7 +9,9 @@ public class HelloEric extends OpMode {
     public void init() {
         telemetry.addData("Hello","Eric");
     }
-
+/*
+This displays Hello Eric
+ */
     @Override
     public void loop() {
 
