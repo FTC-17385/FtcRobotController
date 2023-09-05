@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp()
 /* calls to teleOp */
-public class PrimitiveTypes extends OpMode {
+public class PrimitiveTypesBT extends OpMode {
     @Override
     public void init() {
         int teamNumber = 17385;
