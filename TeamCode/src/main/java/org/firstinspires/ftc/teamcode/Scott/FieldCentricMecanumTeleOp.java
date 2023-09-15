@@ -1,6 +1,6 @@
 
 package org.firstinspires.ftc.teamcode.Scott;
-
+/*
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -65,3 +65,4 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         }
     }
 }
+*/
