@@ -45,8 +45,8 @@ public class kkteleop extends OpMode {
     public void loop() {
         // Drive control
         double drive = -gamepad1.left_stick_y;
-        double strafe = gamepad1.left_stick_x;
-        double rotate = gamepad1.right_stick_x;
+        double strafe = gamepad1.right_stick_x;
+        double rotate = gamepad1.left_stick_x;
 
         // Calculate wheel powers based on the desired behavior
         double frontLeftPower = drive + strafe - rotate;
