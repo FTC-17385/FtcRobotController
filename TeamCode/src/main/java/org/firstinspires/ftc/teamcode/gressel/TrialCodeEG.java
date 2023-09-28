@@ -6,9 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp
-public class TrialCodeEG extends LinearOpMode { // Changed the class name to TrialCodeEG
+public class TrialCodeEG extends LinearOpMode {
     // Declare Motors
     private DcMotor armMotor;
+    private Thread armThread;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -16,42 +17,55 @@ public class TrialCodeEG extends LinearOpMode { // Changed the class name to Tri
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initialize Arm Motor
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Use encoder for control
+
+        // Create thread to manage arm position
+        armThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (gamepad1.y) {
+                        armMotor.setTargetPosition(armMotor.getCurrentPosition() + 10); // Increase target position
+                        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        armMotor.setPower(0.3); // Lift arm
+                    } else if (gamepad1.a) {
+                        armMotor.setTargetPosition(armMotor.getCurrentPosition() - 10); // Decrease target position
+                        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        armMotor.setPower(0.3); // Lower arm
+                    } else {
+                        armMotor.setPower(0.0); // Stop arm
+                    }
+                    try {
+                        Thread.sleep(10); // Small sleep to prevent tight looping
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        });
+        armThread.start();
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
-            double rx = gamepad1.right_stick_x;
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+            double forward = -gamepad1.left_stick_y;  // Forward/Backward movement
+            double strafe = gamepad1.left_stick_x;    // Left/Right movement (strafing)
+            double rotate = gamepad1.right_stick_x;   // Rotation
+
+            double frontLeftPower = forward + strafe + rotate;
+            double backLeftPower = forward - strafe + rotate;
+            double frontRightPower = forward - strafe - rotate;
+            double backRightPower = forward + strafe - rotate;
 
             frontLeftMotor.setPower(frontLeftPower);
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
-
-            // Y to lift arm, A to lower arm
-            if (gamepad1.y) {
-                armMotor.setPower(1.0); // Lift arm
-            } else if (gamepad1.a) {
-                armMotor.setPower(-1.0); // Lower arm
-            } else {
-                armMotor.setPower(0.0); // Stop arm
-            }
         }
     }
 }
-
-
-
