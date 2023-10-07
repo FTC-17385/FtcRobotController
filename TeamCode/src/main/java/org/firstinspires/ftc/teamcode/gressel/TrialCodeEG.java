@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class TrialCodeEG extends LinearOpMode {
     // Declare Motors
     private DcMotor armMotor;
-    private Thread armThread;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -21,32 +20,7 @@ public class TrialCodeEG extends LinearOpMode {
         // Initialize Arm Motor
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Use encoder for control
-
-        // Create thread to manage arm position
-        armThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
-                    if (gamepad1.y) {
-                        armMotor.setTargetPosition(armMotor.getCurrentPosition() + 10); // Increase target position
-                        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        armMotor.setPower(0.3); // Lift arm
-                    } else if (gamepad1.a) {
-                        armMotor.setTargetPosition(armMotor.getCurrentPosition() - 10); // Decrease target position
-                        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        armMotor.setPower(0.3); // Lower arm
-                    } else {
-                        armMotor.setPower(0.0); // Stop arm
-                    }
-                    try {
-                        Thread.sleep(10); // Small sleep to prevent tight looping
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
-        });
-        armThread.start();
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); // Set motor to brake mode when power is zero
 
         waitForStart();
 
@@ -66,6 +40,19 @@ public class TrialCodeEG extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+            // Arm Motor Control
+            if (gamepad1.y) {
+                armMotor.setTargetPosition(armMotor.getCurrentPosition() + 10);
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                armMotor.setPower(0.5);
+            } else if (gamepad1.a) {
+                armMotor.setTargetPosition(armMotor.getCurrentPosition() - 10);
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                armMotor.setPower(0.5);
+            } else {
+                armMotor.setPower(0); // Let the BRAKE mode do the work
+            }
         }
     }
 }
