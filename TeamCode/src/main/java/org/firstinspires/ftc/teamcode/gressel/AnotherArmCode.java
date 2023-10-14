@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -17,15 +18,14 @@ public class AnotherArmCode extends OpMode {
     private DcMotor frontLeftMotor;
     private DcMotor armMotor;
 
-    // Define positions for arm
-    private static final int PICKUP_POSITION = 178;  // Adjusted value
-    private static final int DROPOFF_POSITION = 5348;  // Adjusted value
-
     // For threaded arm control
     private ArmThread armThread;
     private Lock armLock = new ReentrantLock();
-    private int armTargetPosition = 0;  // Initialize to ground position
-    private int currentArmPosition = 0;  // Track the current arm position
+    private int armTargetPosition = 0;
+
+    // Variables for arm control states
+    private boolean armUp = false;
+    private boolean armDown = false;
 
     @Override
     public void init() {
@@ -36,31 +36,40 @@ public class AnotherArmCode extends OpMode {
         frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
         armMotor = hardwareMap.dcMotor.get("armMotor");
 
-        // Reset motor modes
+        // Reset motor modes and set default target position
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setTargetPosition(armTargetPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Initialize current arm position to ground
-        currentArmPosition = 0;
-
         // Start arm control thread
-        armThread = new ArmThread(armMotor);  // Pass armMotor reference to the ArmThread
+        armThread = new ArmThread();
         armThread.start();
     }
 
     @Override
     public void loop() {
         // Drive control
-        // ... (same as your previous code)
+        double drive = -gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x;
+        double rotate = gamepad1.right_stick_x;
+
+        // Calculate wheel powers based on the desired behavior
+        double frontLeftPower = drive + strafe - rotate;
+        double frontRightPower = drive - strafe + rotate;
+        double backLeftPower = drive - strafe - rotate;
+        double backRightPower = drive + strafe + rotate;
+
+        // Set the power to the motors
+        frontLeftMotor.setPower(frontLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backLeftMotor.setPower(backLeftPower);
+        backRightMotor.setPower(backRightPower);
 
         // Arm control
         armLock.lock();
         try {
-            if (gamepad1.a) {
-                armTargetPosition = PICKUP_POSITION;
-            } else if (gamepad1.y) {
-                armTargetPosition = DROPOFF_POSITION;
-            }
+            armUp = gamepad1.a;
+            armDown = gamepad1.y;
         } finally {
             armLock.unlock();
         }
@@ -78,28 +87,25 @@ public class AnotherArmCode extends OpMode {
     }
 
     private class ArmThread extends Thread {
-        private DcMotor localArmMotor;
         private boolean runFlag = true;
-
-        public ArmThread(DcMotor armMotor) {
-            this.localArmMotor = armMotor;
-        }
 
         @Override
         public void run() {
             while (runFlag) {
                 armLock.lock();
                 try {
-                    if (currentArmPosition != armTargetPosition) {
-                        localArmMotor.setTargetPosition(armTargetPosition);
-                        localArmMotor.setPower(0.2);  // Power to use when moving to the target position
-                        currentArmPosition = armTargetPosition;
+                    if (armUp) {
+                        armMotor.setPower(0.2);
+                    } else if (armDown) {
+                        armMotor.setPower(-0.2);
+                    } else {
+                        armMotor.setPower(0.0);
                     }
                 } finally {
                     armLock.unlock();
                 }
 
-                // Sleep for a short period
+                // Sleep for a short period to prevent high CPU usage
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
