@@ -39,6 +39,11 @@ public class BeastDrive extends OpMode {
     public static int PICKUP_POSITION_ENCODER = 0; // dummy value, adjust through testing
     public static int DROPOFF_POSITION_ENCODER = -3630; // dummy value, adjust through testing
 
+    //driving values
+    public static double driveScale = 1.1;
+    public static double strafeScale = 1.0;
+    public static double rotateScale = 1.0;
+
     @Override
     public void init() {
         // Drivetrain initialization
@@ -73,23 +78,41 @@ public class BeastDrive extends OpMode {
     @Override
     public void loop() {
         // Drivetrain logic
-        double drive = gamepad1.left_stick_x * 1.1;
-        double strafe = -gamepad1.left_stick_y;
-        double rotate = gamepad1.right_stick_x;
-        double frontLeftPower = (drive + rotate + strafe) * FRONT_LEFT_SCALE;
-        double frontRightPower = (drive - rotate - strafe) * FRONT_RIGHT_SCALE;
-        double backLeftPower = (drive + rotate - strafe) * BACK_LEFT_SCALE;
-        double backRightPower = (drive - rotate + strafe) * BACK_RIGHT_SCALE;
+        double drive = gamepad1.left_stick_x * driveScale;
+        double strafe = -gamepad1.left_stick_y * strafeScale;
+        // Removed the rotate line
+
+        double frontLeftPower = drive + strafe;  // Physically back left
+        double frontRightPower = drive - strafe;
+        double backLeftPower = drive - strafe;   // Physically front left
+        double backRightPower = drive + strafe;
+
+        // Exponential scaling
+        frontLeftPower = Math.signum(frontLeftPower) * Math.pow(Math.abs(frontLeftPower), 2);
+        frontRightPower = Math.signum(frontRightPower) * Math.pow(Math.abs(frontRightPower), 2);
+        backLeftPower = Math.signum(backLeftPower) * Math.pow(Math.abs(backLeftPower), 2);
+        backRightPower = Math.signum(backRightPower) * Math.pow(Math.abs(backRightPower), 2);
+
+        // Scale the power
+        frontLeftPower *= FRONT_LEFT_SCALE;
+        frontRightPower *= FRONT_RIGHT_SCALE;
+        backLeftPower *= BACK_LEFT_SCALE;
+        backRightPower *= BACK_RIGHT_SCALE;
+
+        // Clamp the power values to be within the range [-0.5, 0.5]
         frontLeftPower = Range.clip(frontLeftPower, -.5, .5);
         frontRightPower = Range.clip(frontRightPower, -.5, .5);
         backLeftPower = Range.clip(backLeftPower, -.5, .5);
         backRightPower = Range.clip(backRightPower, -.5, .5);
+
+        // Set the power to the motors
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
 
-        // Arm logic
+
+    // Arm logic
         if (gamepad1.a) {
             armMotor.setTargetPosition(PICKUP_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
