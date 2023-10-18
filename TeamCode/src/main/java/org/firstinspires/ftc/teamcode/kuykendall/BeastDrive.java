@@ -80,12 +80,12 @@ public class BeastDrive extends OpMode {
         // Drivetrain logic
         double drive = gamepad1.left_stick_x * driveScale;
         double strafe = -gamepad1.left_stick_y * strafeScale;
-        // Removed the rotate line
+        double rotate = gamepad1.right_stick_x * rotateScale;
 
-        double frontLeftPower = drive + strafe;  // Physically back left
-        double frontRightPower = drive - strafe;
-        double backLeftPower = drive - strafe;   // Physically front left
-        double backRightPower = drive + strafe;
+        double frontLeftPower = drive + strafe + rotate;  // Physically back left
+        double frontRightPower = drive - strafe - rotate;
+        double backLeftPower = drive - strafe + rotate;   // Physically front left
+        double backRightPower = drive + strafe - rotate;
 
         // Exponential scaling
         frontLeftPower = Math.signum(frontLeftPower) * Math.pow(Math.abs(frontLeftPower), 2);
@@ -110,7 +110,7 @@ public class BeastDrive extends OpMode {
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
-
+    
 
     // Arm logic
         if (gamepad1.a) {
