@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.gressel;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous
+//@Autonomous
+@Disabled
 public class HelloEric extends OpMode {
     @Override
     public void init() {

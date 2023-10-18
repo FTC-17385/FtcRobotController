@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 /* This tells the code to be used in Teleop mode, and calls to the file class. */
-@TeleOp()
+//@TeleOp()
+@Disabled
 public class mathopmodekk extends OpMode {
     @Override
     public void init() {

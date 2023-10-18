@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Faulkner;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp()
+//@TeleOp()
+@Disabled
 public class PrimitiveTypesMF extends OpMode {
     @Override
     public void init() {

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,7 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@TeleOp(name="BasicTeleOp", group="TeleOp")
+//@TeleOp(name="BasicTeleOp", group="TeleOp")
+@Disabled
 public class kkteleop extends OpMode {
 
     // Define motor objects
