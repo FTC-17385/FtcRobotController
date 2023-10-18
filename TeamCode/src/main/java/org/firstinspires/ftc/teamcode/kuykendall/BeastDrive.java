@@ -35,11 +35,12 @@ public class BeastDrive extends OpMode {
     public static double LEFT_SERVO_CLOSE = 0.0;
     public static double RIGHT_SERVO_OPEN = 0.25;
     public static double RIGHT_SERVO_CLOSE = 0.3;
-    //arm encoder start
-    public static int PICKUP_POSITION_ENCODER = 0; // dummy value, adjust through testing
-    public static int DROPOFF_POSITION_ENCODER = -3630; // dummy value, adjust through testing
 
-    //driving values
+    //arm encoder values
+    public static int PICKUP_POSITION_ENCODER = 0;
+    public static int DROPOFF_POSITION_ENCODER = -3630;
+
+    //driving scales
     public static double driveScale = 1.1;
     public static double strafeScale = 1.0;
     public static double rotateScale = 1.0;
@@ -69,12 +70,6 @@ public class BeastDrive extends OpMode {
         telemetry = dashboard.getTelemetry();
     }
 
-    // Power scaling factors for each motor
-    public static double FRONT_LEFT_SCALE = 0.5;
-    public static double FRONT_RIGHT_SCALE = 0.5;
-    public static double BACK_LEFT_SCALE = 0.5;  // You can start with a value less than 1.0 for the lagging motors and adjust as needed
-    public static double BACK_RIGHT_SCALE = 0.5;  // Adjust as per your observations
-
     @Override
     public void loop() {
         // Drivetrain logic
@@ -82,37 +77,26 @@ public class BeastDrive extends OpMode {
         double strafe = -gamepad1.left_stick_y * strafeScale;
         double rotate = gamepad1.right_stick_x * rotateScale;
 
-        double frontLeftPower = drive + strafe + rotate;  // Physically back left
+        double frontLeftPower = drive + strafe + rotate;
         double frontRightPower = drive - strafe - rotate;
-        double backLeftPower = drive - strafe + rotate;   // Physically front left
+        double backLeftPower = drive - strafe + rotate;
         double backRightPower = drive + strafe - rotate;
 
-        // Exponential scaling
-        frontLeftPower = Math.signum(frontLeftPower) * Math.pow(Math.abs(frontLeftPower), 2);
-        frontRightPower = Math.signum(frontRightPower) * Math.pow(Math.abs(frontRightPower), 2);
-        backLeftPower = Math.signum(backLeftPower) * Math.pow(Math.abs(backLeftPower), 2);
-        backRightPower = Math.signum(backRightPower) * Math.pow(Math.abs(backRightPower), 2);
+        double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+                Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+        if (maxPower > 1.0) {
+            frontLeftPower /= maxPower;
+            frontRightPower /= maxPower;
+            backLeftPower /= maxPower;
+            backRightPower /= maxPower;
+        }
 
-        // Scale the power
-        frontLeftPower *= FRONT_LEFT_SCALE;
-        frontRightPower *= FRONT_RIGHT_SCALE;
-        backLeftPower *= BACK_LEFT_SCALE;
-        backRightPower *= BACK_RIGHT_SCALE;
-
-        // Clamp the power values to be within the range [-0.5, 0.5]
-        frontLeftPower = Range.clip(frontLeftPower, -.5, .5);
-        frontRightPower = Range.clip(frontRightPower, -.5, .5);
-        backLeftPower = Range.clip(backLeftPower, -.5, .5);
-        backRightPower = Range.clip(backRightPower, -.5, .5);
-
-        // Set the power to the motors
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
-    
 
-    // Arm logic
+        // Arm logic
         if (gamepad1.a) {
             armMotor.setTargetPosition(PICKUP_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -140,6 +124,7 @@ public class BeastDrive extends OpMode {
             leftServo.setPosition(LEFT_SERVO_CLOSE);
             rightServo.setPosition(RIGHT_SERVO_CLOSE);
         }
+
         // Resetting the armMotor Encoder
         if (gamepad1.dpad_left) {
             armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -148,14 +133,14 @@ public class BeastDrive extends OpMode {
 
         // Telemetry
         TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Front Left Power", frontLeftPower);
-        packet.put("Front Right Power", frontRightPower);
-        packet.put("Back Left Power", backLeftPower);
-        packet.put("Back Right Power", backRightPower);
+        packet.put("Front Left Power", frontLeft.getPower());
+        packet.put("Front Right Power", frontRight.getPower());
+        packet.put("Back Left Power", backLeft.getPower());
+        packet.put("Back Right Power", backRight.getPower());
         packet.put("Arm Power", armMotor.getPower());
         packet.put("Wrist Servo Position", wristServo.getPosition() == PICKUP_POSITION ? "Pickup" : "Dropoff");
         packet.put("Gripper", leftServo.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");
-        packet.put("Arm Encoder Value", armMotor.getCurrentPosition()); // Added this line
+        packet.put("Arm Encoder Value", armMotor.getCurrentPosition());
         dashboard.sendTelemetryPacket(packet);
     }
 }
