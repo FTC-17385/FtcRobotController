@@ -72,8 +72,19 @@ public class BeastDrive extends OpMode {
 
     @Override
     public void loop() {
+        // Introduce separate scales for forward and backward driving
+        double forwardDriveScale = .5; // Set this to your desired scale for forward motion
+        double backwardDriveScale = .3; // Set this to your desired scale for backward motion
+
         // Drivetrain logic
-        double drive = -gamepad1.left_stick_y * driveScale;
+        double rawDrive = -gamepad1.left_stick_y;
+        double drive;
+        if (rawDrive > 0) { // Forward
+            drive = rawDrive * forwardDriveScale;
+        } else { // Backward or no motion
+            drive = rawDrive * backwardDriveScale;
+        }
+
         double strafe = gamepad1.left_stick_x * strafeScale;
         double rotate = gamepad1.right_stick_x * rotateScale;
 
@@ -97,11 +108,14 @@ public class BeastDrive extends OpMode {
         backRight.setPower(backRightPower);
 
         // Arm logic
-        if (gamepad1.a) {
+        // Arm logic
+        if (gamepad1.dpad_down) {
+            armMotor.setPower(1.0); // Negative power to move the arm down
+        } else if (gamepad1.a && !gamepad1.dpad_down) {
             armMotor.setTargetPosition(PICKUP_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1.0);
-        } else if (gamepad1.y) {
+        } else if (gamepad1.y && !gamepad1.dpad_down) {
             armMotor.setTargetPosition(DROPOFF_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1.0);
