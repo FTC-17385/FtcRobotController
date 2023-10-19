@@ -37,13 +37,13 @@ public class BeastDrive extends OpMode {
     public static double RIGHT_SERVO_CLOSE = 0.3;
 
     //arm encoder values
-    public static int PICKUP_POSITION_ENCODER = 3630;
-    public static int DROPOFF_POSITION_ENCODER = 0;
+    public static int PICKUP_POSITION_ENCODER = 0;
+    public static int DROPOFF_POSITION_ENCODER = -3630;
 
     //driving scales
-    public static double driveScale = .5;
-    public static double strafeScale = .5;
-    public static double rotateScale = .5;
+    public static double driveScale = .3;
+    public static double strafeScale = .4;
+    public static double rotateScale = .4;
 
     @Override
     public void init() {
