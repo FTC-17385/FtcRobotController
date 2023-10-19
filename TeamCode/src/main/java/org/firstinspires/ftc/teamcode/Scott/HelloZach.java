@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Scott;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous
+//@Autonomous
+@Disabled
 //designates this code into autonomous section on the driver hub
 public class HelloZach extends OpMode {
     //The code/public class extends OpMode. Everything below is the code

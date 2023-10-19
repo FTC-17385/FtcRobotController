@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Scott;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp
+//@TeleOp
+@Disabled
 public class MathOpModeZach extends OpMode {
     //code is public, everything below is the code
     @Override
