@@ -41,9 +41,9 @@ public class BeastDrive extends OpMode {
     public static int DROPOFF_POSITION_ENCODER = -3630;
 
     //driving scales
-    public static double driveScale = 1.1;
-    public static double strafeScale = 1.0;
-    public static double rotateScale = 1.0;
+    public static double driveScale = .5;
+    public static double strafeScale = .5;
+    public static double rotateScale = .5;
 
     @Override
     public void init() {
@@ -73,8 +73,8 @@ public class BeastDrive extends OpMode {
     @Override
     public void loop() {
         // Drivetrain logic
-        double drive = gamepad1.left_stick_x * driveScale;
-        double strafe = -gamepad1.left_stick_y * strafeScale;
+        double drive = -gamepad1.left_stick_y * driveScale;
+        double strafe = gamepad1.left_stick_x * strafeScale;
         double rotate = gamepad1.right_stick_x * rotateScale;
 
         double frontLeftPower = drive + strafe + rotate;
