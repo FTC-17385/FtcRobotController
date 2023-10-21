@@ -42,8 +42,14 @@ public class BeastDrive extends OpMode {
 
     //driving scales
     public static double driveScale = .3;
-    public static double strafeScale = .4;
-    public static double rotateScale = .4;
+    public static double strafeScale = .5;
+    public static double rotateScale = .3;
+
+    // 180 turn constants
+    public static double FAST_ROTATE_SPEED = 1.0;
+    public static long TURN_180_TIME_MS = 333;
+    private boolean isTurning180 = false;
+    private long turnStartTime = 0;
 
     @Override
     public void init() {
@@ -72,6 +78,29 @@ public class BeastDrive extends OpMode {
 
     @Override
     public void loop() {
+        // 180 turn logic
+        if (gamepad1.dpad_right && !isTurning180) {
+            isTurning180 = true;
+            turnStartTime = System.currentTimeMillis();
+
+            frontLeft.setPower(-FAST_ROTATE_SPEED);
+            frontRight.setPower(FAST_ROTATE_SPEED);
+            backLeft.setPower(-FAST_ROTATE_SPEED);
+            backRight.setPower(FAST_ROTATE_SPEED);
+        }
+
+        if (isTurning180 && (System.currentTimeMillis() - turnStartTime) > TURN_180_TIME_MS) {
+            isTurning180 = false;
+
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+        }
+
+        if (isTurning180) {
+            return;
+        }
         // Introduce separate scales for forward and backward driving
         double forwardDriveScale = .5; // Set this to your desired scale for forward motion
         double backwardDriveScale = .3; // Set this to your desired scale for backward motion
@@ -144,6 +173,7 @@ public class BeastDrive extends OpMode {
             armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
+
 
         // Telemetry
         TelemetryPacket packet = new TelemetryPacket();
