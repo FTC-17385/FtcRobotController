@@ -35,14 +35,21 @@ public class BeastDrive extends OpMode {
     public static double LEFT_SERVO_CLOSE = 0.0;
     public static double RIGHT_SERVO_OPEN = 0.25;
     public static double RIGHT_SERVO_CLOSE = 0.3;
-    //arm encoder start
-    public static int PICKUP_POSITION_ENCODER = 0; // dummy value, adjust through testing
-    public static int DROPOFF_POSITION_ENCODER = -3630; // dummy value, adjust through testing
 
-    //driving values
-    public static double driveScale = 1.1;
-    public static double strafeScale = 1.0;
-    public static double rotateScale = 1.0;
+    //arm encoder values
+    public static int PICKUP_POSITION_ENCODER = 0;
+    public static int DROPOFF_POSITION_ENCODER = -3630;
+
+    //driving scales
+    public static double driveScale = .3;
+    public static double strafeScale = .5;
+    public static double rotateScale = .3;
+
+    // 180 turn constants
+    public static double FAST_ROTATE_SPEED = 1.0;
+    public static long TURN_180_TIME_MS = 333;
+    private boolean isTurning180 = false;
+    private long turnStartTime = 0;
 
     @Override
     public void init() {
@@ -69,55 +76,75 @@ public class BeastDrive extends OpMode {
         telemetry = dashboard.getTelemetry();
     }
 
-    // Power scaling factors for each motor
-    public static double FRONT_LEFT_SCALE = 0.5;
-    public static double FRONT_RIGHT_SCALE = 0.5;
-    public static double BACK_LEFT_SCALE = 0.5;  // You can start with a value less than 1.0 for the lagging motors and adjust as needed
-    public static double BACK_RIGHT_SCALE = 0.5;  // Adjust as per your observations
-
     @Override
     public void loop() {
+        // 180 turn logic
+        if (gamepad1.dpad_right && !isTurning180) {
+            isTurning180 = true;
+            turnStartTime = System.currentTimeMillis();
+
+            frontLeft.setPower(-FAST_ROTATE_SPEED);
+            frontRight.setPower(FAST_ROTATE_SPEED);
+            backLeft.setPower(-FAST_ROTATE_SPEED);
+            backRight.setPower(FAST_ROTATE_SPEED);
+        }
+
+        if (isTurning180 && (System.currentTimeMillis() - turnStartTime) > TURN_180_TIME_MS) {
+            isTurning180 = false;
+
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+        }
+
+        if (isTurning180) {
+            return;
+        }
+        // Introduce separate scales for forward and backward driving
+        double forwardDriveScale = .5; // Set this to your desired scale for forward motion
+        double backwardDriveScale = .3; // Set this to your desired scale for backward motion
+
         // Drivetrain logic
-        double drive = gamepad1.left_stick_x * driveScale;
-        double strafe = -gamepad1.left_stick_y * strafeScale;
+        double rawDrive = -gamepad1.left_stick_y;
+        double drive;
+        if (rawDrive > 0) { // Forward
+            drive = rawDrive * forwardDriveScale;
+        } else { // Backward or no motion
+            drive = rawDrive * backwardDriveScale;
+        }
+
+        double strafe = gamepad1.left_stick_x * strafeScale;
         double rotate = gamepad1.right_stick_x * rotateScale;
 
-        double frontLeftPower = drive + strafe + rotate;  // Physically back left
+        double frontLeftPower = drive + strafe + rotate;
         double frontRightPower = drive - strafe - rotate;
-        double backLeftPower = drive - strafe + rotate;   // Physically front left
+        double backLeftPower = drive - strafe + rotate;
         double backRightPower = drive + strafe - rotate;
 
-        // Exponential scaling
-        frontLeftPower = Math.signum(frontLeftPower) * Math.pow(Math.abs(frontLeftPower), 2);
-        frontRightPower = Math.signum(frontRightPower) * Math.pow(Math.abs(frontRightPower), 2);
-        backLeftPower = Math.signum(backLeftPower) * Math.pow(Math.abs(backLeftPower), 2);
-        backRightPower = Math.signum(backRightPower) * Math.pow(Math.abs(backRightPower), 2);
+        double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+                Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
+        if (maxPower > 1.0) {
+            frontLeftPower /= maxPower;
+            frontRightPower /= maxPower;
+            backLeftPower /= maxPower;
+            backRightPower /= maxPower;
+        }
 
-        // Scale the power
-        frontLeftPower *= FRONT_LEFT_SCALE;
-        frontRightPower *= FRONT_RIGHT_SCALE;
-        backLeftPower *= BACK_LEFT_SCALE;
-        backRightPower *= BACK_RIGHT_SCALE;
-
-        // Clamp the power values to be within the range [-0.5, 0.5]
-        frontLeftPower = Range.clip(frontLeftPower, -.5, .5);
-        frontRightPower = Range.clip(frontRightPower, -.5, .5);
-        backLeftPower = Range.clip(backLeftPower, -.5, .5);
-        backRightPower = Range.clip(backRightPower, -.5, .5);
-
-        // Set the power to the motors
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
 
-
-    // Arm logic
-        if (gamepad1.a) {
+        // Arm logic
+        // Arm logic
+        if (gamepad1.dpad_down) {
+            armMotor.setPower(1.0); // Negative power to move the arm down
+        } else if (gamepad1.a && !gamepad1.dpad_down) {
             armMotor.setTargetPosition(PICKUP_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1.0);
-        } else if (gamepad1.y) {
+        } else if (gamepad1.y && !gamepad1.dpad_down) {
             armMotor.setTargetPosition(DROPOFF_POSITION_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1.0);
@@ -139,22 +166,24 @@ public class BeastDrive extends OpMode {
             leftServo.setPosition(LEFT_SERVO_CLOSE);
             rightServo.setPosition(RIGHT_SERVO_CLOSE);
         }
+
         // Resetting the armMotor Encoder
         if (gamepad1.dpad_left) {
             armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
+
         // Telemetry
         TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Front Left Power", frontLeftPower);
-        packet.put("Front Right Power", frontRightPower);
-        packet.put("Back Left Power", backLeftPower);
-        packet.put("Back Right Power", backRightPower);
+        packet.put("Front Left Power", frontLeft.getPower());
+        packet.put("Front Right Power", frontRight.getPower());
+        packet.put("Back Left Power", backLeft.getPower());
+        packet.put("Back Right Power", backRight.getPower());
         packet.put("Arm Power", armMotor.getPower());
         packet.put("Wrist Servo Position", wristServo.getPosition() == PICKUP_POSITION ? "Pickup" : "Dropoff");
         packet.put("Gripper", leftServo.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");
-        packet.put("Arm Encoder Value", armMotor.getCurrentPosition()); // Added this line
+        packet.put("Arm Encoder Value", armMotor.getCurrentPosition());
         dashboard.sendTelemetryPacket(packet);
     }
 }

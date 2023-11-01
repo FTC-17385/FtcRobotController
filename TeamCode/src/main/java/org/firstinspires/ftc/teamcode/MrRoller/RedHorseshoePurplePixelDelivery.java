@@ -29,9 +29,11 @@
 
 package org.firstinspires.ftc.teamcode.MrRoller;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -41,16 +43,40 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
-/*
- * This OpMode illustrates the basics of TensorFlow Object Detection,
- * including Java Builder structures for specifying Vision parameters.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
- */
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
+@Autonomous(name = "RedHorseshoePurplePixelDelivery", group = "MrRoller")
 //@Disabled
-public class ConceptTensorFlowObjectDetection extends LinearOpMode {
+public class RedHorseshoePurplePixelDelivery extends LinearOpMode {
+
+    // Drivetrain motors
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
+
+    // Arm motor
+    private DcMotor armMotor;
+
+    // Wrist and gripper servos
+    private Servo wristServo, leftServo, rightServo;
+
+    // FTC Dashboard
+    private FtcDashboard dashboard;
+
+    // Wrist positions
+    public static double PICKUP_POSITION = 0.7;
+    public static double DROPOFF_POSITION = 0.15;
+
+    // Gripper positions
+    public static double LEFT_SERVO_OPEN = 0.35;
+    public static double LEFT_SERVO_CLOSE = 0.0;
+    public static double RIGHT_SERVO_OPEN = 0.25;
+    public static double RIGHT_SERVO_CLOSE = 0.3;
+
+    //arm encoder values
+    public static int PICKUP_POSITION_ENCODER = 0;
+    public static int DROPOFF_POSITION_ENCODER = -3630;
+
+    //driving scales
+    public static double driveScale = .3;
+    public static double strafeScale = .4;
+    public static double rotateScale = .4;
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
