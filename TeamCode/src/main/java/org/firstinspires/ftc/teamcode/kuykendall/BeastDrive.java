@@ -161,7 +161,6 @@ public class BeastDrive extends OpMode {
         } else {
             armMotor.setPower(0.0);
         }
-
         // Wrist logic
         if (gamepad1.left_bumper) {
             wristServo.setPosition(PICKUP_POSITION);
