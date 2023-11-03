@@ -27,8 +27,8 @@ public class BeastDrive extends OpMode {
     private FtcDashboard dashboard;
 
     // Wrist positions
-    public static double PICKUP_POSITION = 0.7;
-    public static double DROPOFF_POSITION = 0.15;
+    public static double PICKUP_POSITION = 0.16;
+    public static double DROPOFF_POSITION = 0.78;
 
     // Gripper positions
     public static double LEFT_SERVO_OPEN = 0.35;
@@ -51,6 +51,12 @@ public class BeastDrive extends OpMode {
     private boolean isTurning180 = false;
     private long turnStartTime = 0;
 
+    // Variables from planetest
+    private Servo planeServo;
+    private TelemetryPacket packet;
+    public static double Launch_POSITION = 1;
+    public static double HOLD_POSITION = 0;
+
     @Override
     public void init() {
         // Drivetrain initialization
@@ -70,6 +76,10 @@ public class BeastDrive extends OpMode {
         wristServo = hardwareMap.get(Servo.class, "wristServo");
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
+
+        // Initialization from planetest
+        planeServo = hardwareMap.get(Servo.class, "planeServo");
+        packet = new TelemetryPacket();
 
         // FTC Dashboard initialization
         dashboard = FtcDashboard.getInstance();
@@ -172,6 +182,11 @@ public class BeastDrive extends OpMode {
         if (gamepad1.dpad_left) {
             armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        // Logic from planetest
+       if (gamepad1.dpad_up) {
+            planeServo.setPosition(HOLD_POSITION);
         }
 
 

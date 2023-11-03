@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
-
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
         import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
         import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
         import android.util.Size;
 
-        import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
         import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
         import com.qualcomm.robotcore.hardware.DcMotor;
         import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,30 +31,42 @@ package org.firstinspires.ftc.teamcode.kuykendall;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Auto Vision Drive", group = "Auto")
+@Autonomous(name = "Auto Vision Drive", group = "Auto")
 public class AutonomousDrive extends LinearOpMode {
 
     private boolean DEBUG = false;
+    private FtcDashboard dashboard; // Add this line for FTC Dashboard
 
-    private double MOVE_INDEX = 2;
-    private double MOVE_MIDDLE = 0.7;
-    private double MOVE_LEFT = 2;
-    private double MOVE_RIGHT = 2;
+    //private double MOVE_INDEX = 1;
+    private double MOVE_MIDDLE = .5;
+    private double MOVE_LEFT = 3;
+    private double MOVE_RIGHT = 3;
 
     static final double     FORWARD_SPEED = 0.2;
     static final double     TURN_SPEED    = 0.2;
 
     private ElapsedTime runtime = new ElapsedTime();
 
+    // Wrist positions
+    public static double PICKUP_POSITION = 0.7;
+    public static double DROPOFF_POSITION = 0.15;
+
+    // Gripper positions
+    public static double LEFT_SERVO_OPEN = 0.35;
+    public static double LEFT_SERVO_CLOSE = 0.0;
+    public static double RIGHT_SERVO_OPEN = 0.25;
+    public static double RIGHT_SERVO_CLOSE = 0.3;
+
     private DcMotor frontLeftMotor = null;
     private DcMotor backLeftMotor = null;
     private DcMotor frontRightMotor = null;
     private DcMotor backRightMotor = null;
+    private DcMotor armMotor = null;
 
-    private Servo leftGripper;
-    private Servo rightGripper;
-
-    private Servo wrist;
+    // Servos
+    private Servo leftServo;
+    private Servo rightServo;
+    private Servo wristServo;
 
 
     private enum PixelPosition {
@@ -60,17 +76,18 @@ public class AutonomousDrive extends LinearOpMode {
         RIGHT
     }
 
+
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
     // TFOD_MODEL_ASSET points to a model file stored in the project Asset location,
     // this is only used for Android Studio when using models in Assets.
-    private static final String TFOD_MODEL_ASSET = "model_20231015_125021.tflite";
+    private static final String TFOD_MODEL_ASSET = "model_cube_props-102823.tflite";
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
     // this is used when uploading models directly to the RC using the model upload interface.
     private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/model_20231015_125021.tflite";
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
-            "Red Horseshoe",
-            "Blue Horseshoe"
+            "Red Square",
+            "Blue Square"
     };
 
 
@@ -78,42 +95,66 @@ public class AutonomousDrive extends LinearOpMode {
     private VisionPortal visionPortal;
     private VisionPortal.Builder visionPortalBuilder;
 
+    // Initialize threading elements
+    private ExecutorService executor = Executors.newFixedThreadPool(2);
+    private Object detectLock = new Object();
+
     @Override
     public void runOpMode() {
+
+        // Initialize FTC Dashboard
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
+
 
         double  drive           = 0;        // Desired forward power/speed (-1 to +1) +ve is forward
         double  turn            = 0;        // Desired turning power/speed (-1 to +1) +ve is CounterClockwise
 
-        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeftMotor");
-        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeftMotor");
-        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRightMotor");
-        backRightMotor = hardwareMap.get(DcMotor.class, "backRightMotor");
+        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft");
+        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft");
+        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRight");
+        backRightMotor = hardwareMap.get(DcMotor.class, "backRight");
+
+        leftServo = hardwareMap.get(Servo.class, "leftServo");
+        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        wristServo = hardwareMap.servo.get("wristServo");
+        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+
+        wristServo.setPosition(PICKUP_POSITION);
+        leftServo.setPosition(LEFT_SERVO_OPEN);
+        rightServo.setPosition(RIGHT_SERVO_CLOSE);
 
         frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        initTfod();
 
-        leftGripper = hardwareMap.get(Servo.class, "leftGripper");
-        rightGripper = hardwareMap.get(Servo.class, "rightGripper");
-        wrist = hardwareMap.servo.get("wristServo");
-        wrist.setPosition(.4);
-        leftGripper.setPosition(1); // Adjust the position value as needed
-        rightGripper.setPosition(0); // Adjust the position value as needed
+       // initTfod();
+
+        leftServo = hardwareMap.get(Servo.class, "leftServo");
+        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        wristServo = hardwareMap.servo.get("wristServo");
+        wristServo.setPosition(.4);
+        leftServo.setPosition(.35); // Adjust the position value as needed
+        rightServo.setPosition(0.25); // Adjust the position value as needed
 
         justWait(1000);
 
-        leftGripper.setPosition(1); // Adjust the position value as needed
-        rightGripper.setPosition(0); // Adjust the position value as needed
+        leftServo.setPosition(0.35); // Adjust the position value as needed
+        rightServo.setPosition(0.25); // Adjust the position value as needed
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         telemetry.update();
         waitForStart();
-        moveRobot("", 1);
+
+        armMotor.setTargetPosition(-2800);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(1);
+        sleep(3000);
+        initTfod();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
@@ -130,6 +171,30 @@ public class AutonomousDrive extends LinearOpMode {
                 }
 
                 // Share the CPU.
+                sleep(20);
+            }
+        }
+        waitForStart();
+        moveRobot("", 1);
+
+
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+
+                telemetryTfod();
+
+                // Replace telemetry.update() with the following to send telemetry to the FTC Dashboard:
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.put("Objects Detected", tfod.getRecognitions().size());
+                // Add any other telemetry data you want to monitor
+                dashboard.sendTelemetryPacket(packet);
+
+                if (gamepad1.dpad_down) {
+                    visionPortal.stopStreaming();
+                } else if (gamepad1.dpad_up) {
+                    visionPortal.resumeStreaming();
+                }
+
                 sleep(20);
             }
         }
@@ -197,9 +262,9 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.addData("# Objects Detected", currentRecognitions.size());
 
         //Quickly search and see if we found a Pixel
-        if(currentRecognitions.contains("Blue Horseshoe") || currentRecognitions.contains("Red Horseshoe")) {
+        if(currentRecognitions.contains("Blue Square") || currentRecognitions.contains("Red Square")) {
             pixelFound = true;
-            telemetry.addData("Object Found %s", " Horseshoe");
+            telemetry.addData("Object Found %s", " Square");
             telemetry.update();
         }
 
@@ -239,7 +304,7 @@ public class AutonomousDrive extends LinearOpMode {
             }
 
             //index to center of strike lines
-            moveRobot("Index To Strike Lines", MOVE_INDEX);
+          //  moveRobot("Index To Strike Lines", MOVE_INDEX);
 
             switch(pPosition) {
                 case LEFT:
@@ -270,6 +335,12 @@ public class AutonomousDrive extends LinearOpMode {
             if(pixelFound) {
                 break;
             }
+            // After telemetry.addData lines, send the data to the FTC Dashboard:
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.put("Objects Detected", tfod.getRecognitions().size());
+            packet.put("Object Found", pixelFound ? "Square" : "None");
+            // Add any other telemetry data from this method
+            dashboard.sendTelemetryPacket(packet);
         }   // end for() loop
 
     }   // end method telemetryTfod()
@@ -334,12 +405,12 @@ public class AutonomousDrive extends LinearOpMode {
     private void moveArm() {
         telemetry.addData("Dropping Pixel", "");
         telemetry.update();
-        leftGripper.setPosition(0.9); // Adjust the position value as needed
-        rightGripper.setPosition(0.1); // Adjust the position value as needed
+        leftServo.setPosition(LEFT_SERVO_CLOSE);
+        rightServo.setPosition(RIGHT_SERVO_OPEN);
         telemetry.addData("Pixel Dropped", "");
         telemetry.update();
-
     }
+
 
     private void justWait(int milliseconds) {
         double currTime = getRuntime();

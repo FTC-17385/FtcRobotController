@@ -15,7 +15,8 @@ public class sillyauto extends LinearOpMode {
     public static double RIGHT_SERVO_CLOSE = 0.25;
 
     // Wrist positions
-    public static double DROPOFF_POSITION = 0.15;
+    public static double DROPOFF_POSITION = 0.78;
+    public static double WRIST_UP_POSITION = 0.17;  // Added the "up" position for the wrist
 
     @Override
     public void runOpMode() {
@@ -29,6 +30,9 @@ public class sillyauto extends LinearOpMode {
         // Close the gripper during initialization
         leftServo.setPosition(LEFT_SERVO_CLOSE);
         rightServo.setPosition(RIGHT_SERVO_CLOSE);
+
+        // Move the wrist to the "up" position during initialization
+        wristServo.setPosition(WRIST_UP_POSITION);  // Added this line
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.kuykendall;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "ArmCode", group = "TeleOp")
+//@TeleOp(name = "ArmCode", group = "TeleOp")
+@Disabled
 public class armcode extends OpMode {
 
     private DcMotor armMotor; // Assuming you are using a DC motor for the arm
