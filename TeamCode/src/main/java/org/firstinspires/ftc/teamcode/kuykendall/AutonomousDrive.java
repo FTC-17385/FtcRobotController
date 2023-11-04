@@ -37,13 +37,14 @@ public class AutonomousDrive extends LinearOpMode {
     private boolean DEBUG = false;
     private FtcDashboard dashboard; // Add this line for FTC Dashboard
 
-    //private double MOVE_INDEX = 1;
-    private double MOVE_MIDDLE = .5;
+    private double MOVE_INDEX = 1;
+    private double MOVE_MIDDLE = 1;
     private double MOVE_LEFT = 3;
     private double MOVE_RIGHT = 3;
 
     static final double     FORWARD_SPEED = 0.2;
     static final double     TURN_SPEED    = 0.2;
+    static final double STRAFE_SPEED = 0.2;
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -67,6 +68,9 @@ public class AutonomousDrive extends LinearOpMode {
     private Servo leftServo;
     private Servo rightServo;
     private Servo wristServo;
+
+    //Object True false
+    private boolean isObjectHandled = false;
 
 
     private enum PixelPosition {
@@ -130,7 +134,7 @@ public class AutonomousDrive extends LinearOpMode {
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-       // initTfod();
+        initTfod();
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
@@ -150,11 +154,14 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        armMotor.setTargetPosition(-2800);
+        /* armMotor.setTargetPosition(-2800);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(1);
         sleep(3000);
-        initTfod();
+        */
+
+
+//        initTfod();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
@@ -175,29 +182,37 @@ public class AutonomousDrive extends LinearOpMode {
             }
         }
         waitForStart();
-        moveRobot("", 1);
 
+       /* armMotor.setTargetPosition(-2800);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(1);
+        sleep(3000);
+        */
 
+        initTfod();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
-                telemetryTfod();
+                // Only call telemetryTfod() if the object has not been handled yet
+                if (!isObjectHandled) {
+                    telemetryTfod();
+                }
 
-                // Replace telemetry.update() with the following to send telemetry to the FTC Dashboard:
-                TelemetryPacket packet = new TelemetryPacket();
-                packet.put("Objects Detected", tfod.getRecognitions().size());
-                // Add any other telemetry data you want to monitor
-                dashboard.sendTelemetryPacket(packet);
+                // Push telemetry to the Driver Station.
+                telemetry.update();
 
+                // Save CPU resources; can resume streaming when needed.
                 if (gamepad1.dpad_down) {
                     visionPortal.stopStreaming();
                 } else if (gamepad1.dpad_up) {
                     visionPortal.resumeStreaming();
                 }
 
+                // Share the CPU.
                 sleep(20);
             }
         }
+
 
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
@@ -341,6 +356,15 @@ public class AutonomousDrive extends LinearOpMode {
             packet.put("Object Found", pixelFound ? "Square" : "None");
             // Add any other telemetry data from this method
             dashboard.sendTelemetryPacket(packet);
+
+           //stop vision after pixel
+            if(pixelFound && !isObjectHandled) {
+                // Assuming you've just performed the actions needed after detection
+                moveArm();  // Example of action taken
+
+                // Now set the flag so you don't enter this if-block again
+                isObjectHandled = true;
+            }
         }   // end for() loop
 
     }   // end method telemetryTfod()
@@ -397,6 +421,7 @@ public class AutonomousDrive extends LinearOpMode {
                 frontRightMotor.setPower(0);
                 backRightMotor.setPower(0);
                 break;
+
         }
     }
 
