@@ -64,9 +64,10 @@ public class BeastDrive extends OpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
+        planeServo = hardwareMap.get(Servo.class, "planeServo");
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-
+        planeServo.setPosition(-0.2);
         // Arm initialization
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -89,6 +90,13 @@ public class BeastDrive extends OpMode {
     @Override
     public void loop() {
         // plane logic
+        if (gamepad1.dpad_up) {
+            // Move planeServo to position - 1
+            planeServo.setPosition(-0.2);
+        } else {
+            // Set it back to a default position when the button is not pressed
+            // Replace 0.6 with your desired default position
+            planeServo.setPosition(0.5);
 
         if (gamepad1.dpad_right && !isTurning180) {
             isTurning180 = true;
@@ -205,5 +213,6 @@ public class BeastDrive extends OpMode {
         packet.put("Gripper", leftServo.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");
         packet.put("Arm Encoder Value", armMotor.getCurrentPosition());
         dashboard.sendTelemetryPacket(packet);
+    }
     }
 }
