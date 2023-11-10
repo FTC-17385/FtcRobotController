@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
         import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
@@ -199,6 +201,7 @@ public class AutonomousDrive extends LinearOpMode {
                 }
 
                 sleep(20);
+                break;
             }
         }
 
@@ -269,92 +272,36 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.addData("# Objects Detected", currentRecognitions.size());
         double detectWait = 7.0;
 
-        // Step through the list of recognitions and update pixelFound if a matching label is found
-        while ( timer.seconds() < detectWait ) {
-            for (Recognition recognition : currentRecognitions) {
-                if (recognition.getLabel().equals("Blue Square") || recognition.getLabel().equals("Red Square")) {
-                    pixelFound = true;
-                        pPosition = PixelPosition.RIGHT;  // Default to right
-                        break;  // Break from the loop
+        while (timer.seconds() < detectWait) {
+            if (currentRecognitions.size() > 0) {
+                for(Recognition recognition : currentRecognitions) {
+
+                    if(Arrays.asList(LABELS).contains(recognition.getLabel())) {
+                        double x = (recognition.getLeft() + recognition.getRight()) / 2;
+                        double y = (recognition.getTop() + recognition.getBottom()) / 2;
+
+                        // put your left, right, middle logic using the x value
+                        if (x < 100) {
+                            pPosition = PixelPosition.LEFT;
+                            telemetry.addData("Pixel Position: ", "Left Line");
+                            telemetry.update();
+                            justWait(1000);
+                        } else if (x > 600) {
+                            pPosition = PixelPosition.RIGHT;
+                            telemetry.addData("Pixel Position: ", "Right Line");
+                            telemetry.update();
+                            justWait(1000);
+                        } else {
+                            pPosition = PixelPosition.MIDDLE;
+                            telemetry.addData("Pixel Position: ", "Middle Line");
+                            telemetry.update();
+                            justWait(1000);
+                        }
                     }
-
-                if (pPosition == PixelPosition.UNKNOWN) {  // If no object was found within 7 seconds
-                    pPosition = PixelPosition.RIGHT;  // Default to right
                 }
-                if (pixelFound = true)
-                {
-                    detectWait = 0;
-                }
-
             }
         }
 
-        for (Recognition recognition : currentRecognitions) {
-            if (recognition.getConfidence() >= 0.93) { // <-- Added check here
-
-                // ... (the rest of your existing logic for processing the recognition)
-
-                switch(pPosition) {
-                    // ... (cases for LEFT, RIGHT, MIDDLE remain unchanged)
-
-                    case UNKNOWN:
-                        // You might want to add a break here if UNKNOWN is a case you want to handle
-                        break;
-                }
-
-                // If a valid recognition with high confidence was found, break out of the loop
-                break; // <-- Added break here
-            } else {
-                telemetry.addData("Skipped Recognition", "Low confidence"); // <-- Added else case here
-                telemetry.update();
-            }
-        }
-
-        //Quickly search and see if we found a Pixel
-        if(currentRecognitions.contains("Blue Square") || currentRecognitions.contains("Red Square")) {
-            pixelFound = true;
-            telemetry.addData("Object Found %s", " Square");
-            telemetry.update();
-        }
-
-
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-
-            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
-
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-            //telemetry.addData("- Color", "%s", recognition.get)
-            justWait(1000);
-
-            // Asuming a configuration of 640x480 pixels
-            // Pixel/Prop found with x < 214 = Pixel/Prop on left strike line
-            // Pixel/Prop found with 214 < x < 428 = Pixel/Prop on middle strike line
-            // Pixel/Prop found with 428 < x = Pixel/Prop on right strike line
-            telemetry.addData("", " ");
-            if (x < 100) {
-                pPosition = PixelPosition.LEFT;
-                telemetry.addData("Pixel Position: ", "Left Line");
-                telemetry.update();
-                justWait(1000);
-            } else if (x > 600) {
-                pPosition = PixelPosition.RIGHT;
-                telemetry.addData("Pixel Position: ", "Right Line");
-                telemetry.update();
-                justWait(1000);
-            } else {
-                pPosition = PixelPosition.MIDDLE;
-                telemetry.addData("Pixel Position: ", "Middle Line");
-                telemetry.update();
-                justWait(1000);
-            }
-
-            //index to center of strike lines
-          //  moveRobot("Index To Strike Lines", MOVE_INDEX);
 
             switch(pPosition) {
                 case LEFT:
@@ -372,6 +319,10 @@ public class AutonomousDrive extends LinearOpMode {
                     sleep(500);
                     leftServo.setPosition(LEFT_SERVO_CLOSE);
                     rightServo.setPosition(RIGHT_SERVO_OPEN);
+                    sleep(1000);
+                    armMotor.setTargetPosition(-2000);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armMotor.setPower(1);
                     break;
                 case RIGHT:
                     sleep(3000);
@@ -388,6 +339,10 @@ public class AutonomousDrive extends LinearOpMode {
                     sleep(500);
                     leftServo.setPosition(LEFT_SERVO_CLOSE);
                     rightServo.setPosition(RIGHT_SERVO_OPEN);
+                    sleep(1000);
+                    armMotor.setTargetPosition(-2000);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armMotor.setPower(1);
                     break;
                 case MIDDLE:
                     sleep(3000);
@@ -405,9 +360,9 @@ public class AutonomousDrive extends LinearOpMode {
                     break;
             }
 
-            if(pixelFound) {
-                break;
-            }
+          //  if(pixelFound) {
+            //    break;
+           // }
             // After processing all recognitions
             if (!pixelFound) {
                 // Assume the right side is the correct one
@@ -433,11 +388,11 @@ public class AutonomousDrive extends LinearOpMode {
             dashboard.sendTelemetryPacket(packet);
         }   // end for() loop
 // At the end of the telemetryTfod() method, check if the pixel is placed
-        if (pixelPlaced) {
+       // if (pixelPlaced) {
             // If the pixel is placed, stop the opMode
-            requestOpModeStop();
-        }
-    }   // end method telemetryTfod()
+         //   requestOpModeStop();
+        //}
+    //}   // end method telemetryTfod()
 
     private void defaultBehavior() {
         moveRobot("Mid Lines", MOVE_BACK);
@@ -516,7 +471,7 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.addData("Pixel Dropped", "");
         telemetry.update();
         sleep(500);
-        armMotor.setTargetPosition(0);
+        armMotor.setTargetPosition(-1000);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(1);
     }
