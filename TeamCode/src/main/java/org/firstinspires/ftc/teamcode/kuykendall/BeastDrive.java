@@ -67,7 +67,7 @@ public class BeastDrive extends OpMode {
         planeServo = hardwareMap.get(Servo.class, "planeServo");
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-        planeServo.setPosition(-0.2);
+        //planeServo.setPosition(-0.2);
         // Arm initialization
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setDirection(DcMotorSimple.Direction.FORWARD);

@@ -270,7 +270,7 @@ public class AutonomousDrive extends LinearOpMode {
         List<Recognition> currentRecognitions = tfod.getRecognitions();
         timer.reset();  // Reset and start the timer
         telemetry.addData("# Objects Detected", currentRecognitions.size());
-        double detectWait = 7.0;
+        double detectWait = 10.0;
 
         while (timer.seconds() < detectWait) {
             if (currentRecognitions.size() > 0) {
