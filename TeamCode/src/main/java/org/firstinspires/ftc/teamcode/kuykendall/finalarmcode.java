@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="finalarmcode", group="TeleOp")
+// @TeleOp(name="finalarmcode", group="TeleOp")
+@Disabled
 public class finalarmcode extends OpMode {
 
     // Declare the motor variables
