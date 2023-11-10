@@ -54,8 +54,8 @@ public class BeastDrive extends OpMode {
     // Variables from planetest
     private Servo planeServo;
     private TelemetryPacket packet;
-    public static double Launch_POSITION = 1;
-    public static double HOLD_POSITION = 0;
+    public static double Launch_POSITION = 0.8;
+    public static double HOLD_POSITION = 0.3;
 
     @Override
     public void init() {
@@ -77,9 +77,9 @@ public class BeastDrive extends OpMode {
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
 
-        // Initialization from planetest
-        planeServo = hardwareMap.get(Servo.class, "planeServo");
-        packet = new TelemetryPacket();
+        // Initialize your servo in the hardware map
+      //  planeServo = hardwareMap.servo.get("planeServo");
+        //planeServo.setPosition(0);
 
         // FTC Dashboard initialization
         dashboard = FtcDashboard.getInstance();
@@ -88,7 +88,8 @@ public class BeastDrive extends OpMode {
 
     @Override
     public void loop() {
-        // 180 turn logic
+        // plane logic
+
         if (gamepad1.dpad_right && !isTurning180) {
             isTurning180 = true;
             turnStartTime = System.currentTimeMillis();
@@ -183,9 +184,13 @@ public class BeastDrive extends OpMode {
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        // Logic from planetest
-       if (gamepad1.dpad_up) {
-            planeServo.setPosition(HOLD_POSITION);
+        if (gamepad1.dpad_up) {
+            // Move planeServo to position - 1
+            planeServo.setPosition(-0.2);
+        } else {
+            // Set it back to a default position when the button is not pressed
+            // Replace 0.6 with your desired default position
+            planeServo.setPosition(0.5);
         }
 
 

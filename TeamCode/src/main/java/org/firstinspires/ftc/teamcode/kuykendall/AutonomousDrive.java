@@ -37,19 +37,21 @@ public class AutonomousDrive extends LinearOpMode {
     private boolean DEBUG = false;
     private FtcDashboard dashboard; // Add this line for FTC Dashboard
 
-    private double MOVE_INDEX = 1;
-    private double MOVE_MIDDLE = 1;
-    private double MOVE_LEFT = 3;
-    private double MOVE_RIGHT = 3;
+    //private double MOVE_INDEX = 1;
+    private double MOVE_MIDDLE = 3.6;
+    private double MOVE_LEFT = 1.5;
+    private double MOVE_RIGHT = 1.5;
+    private double MOVE_BACK = 2.8;
+    private double MOVE_SMB = 0.3;
+    private double MOVE_SMF = -1;
 
-    static final double     FORWARD_SPEED = 0.2;
-    static final double     TURN_SPEED    = 0.2;
-    static final double STRAFE_SPEED = 0.2;
+    static final double     FORWARD_SPEED = -0.2;
+    static final double     TURN_SPEED    = -0.2;
 
     private ElapsedTime runtime = new ElapsedTime();
 
     // Wrist positions
-    public static double PICKUP_POSITION = 0.7;
+    public static double PICKUP_POSITION = 0.78;
     public static double DROPOFF_POSITION = 0.15;
 
     // Gripper positions
@@ -68,9 +70,6 @@ public class AutonomousDrive extends LinearOpMode {
     private Servo leftServo;
     private Servo rightServo;
     private Servo wristServo;
-
-    //Object True false
-    private boolean isObjectHandled = false;
 
 
     private enum PixelPosition {
@@ -134,12 +133,12 @@ public class AutonomousDrive extends LinearOpMode {
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        initTfod();
+       // initTfod();
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
         wristServo = hardwareMap.servo.get("wristServo");
-        wristServo.setPosition(.4);
+        wristServo.setPosition(.05);
         leftServo.setPosition(.35); // Adjust the position value as needed
         rightServo.setPosition(0.25); // Adjust the position value as needed
 
@@ -154,14 +153,11 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        /* armMotor.setTargetPosition(-2800);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(1);
-        sleep(3000);
-        */
-
-
-//        initTfod();
+      //  armMotor.setTargetPosition(0);
+        //armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //armMotor.setPower(1);
+       // sleep(3000);
+        initTfod();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
@@ -182,37 +178,29 @@ public class AutonomousDrive extends LinearOpMode {
             }
         }
         waitForStart();
+        moveRobot("", 1);
 
-       /* armMotor.setTargetPosition(-2800);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(1);
-        sleep(3000);
-        */
 
-        initTfod();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
-                // Only call telemetryTfod() if the object has not been handled yet
-                if (!isObjectHandled) {
-                    telemetryTfod();
-                }
+                telemetryTfod();
 
-                // Push telemetry to the Driver Station.
-                telemetry.update();
+                // Replace telemetry.update() with the following to send telemetry to the FTC Dashboard:
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.put("Objects Detected", tfod.getRecognitions().size());
+                // Add any other telemetry data you want to monitor
+                dashboard.sendTelemetryPacket(packet);
 
-                // Save CPU resources; can resume streaming when needed.
                 if (gamepad1.dpad_down) {
                     visionPortal.stopStreaming();
                 } else if (gamepad1.dpad_up) {
                     visionPortal.resumeStreaming();
                 }
 
-                // Share the CPU.
                 sleep(20);
             }
         }
-
 
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
@@ -270,11 +258,57 @@ public class AutonomousDrive extends LinearOpMode {
      * Add telemetry about TensorFlow Object Detection (TFOD) recognitions.
      */
     private void telemetryTfod() {
-        PixelPosition pPosition;
+        // At the beginning of your detection loop:
+        ElapsedTime timer = new ElapsedTime();  // Initialize timer
+        PixelPosition pPosition = PixelPosition.UNKNOWN;
         boolean pixelFound = false;
+        boolean pixelPlaced = false;
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
+        timer.reset();  // Reset and start the timer
         telemetry.addData("# Objects Detected", currentRecognitions.size());
+        double detectWait = 7.0;
+
+        // Step through the list of recognitions and update pixelFound if a matching label is found
+        while ( timer.seconds() < detectWait ) {
+            for (Recognition recognition : currentRecognitions) {
+                if (recognition.getLabel().equals("Blue Square") || recognition.getLabel().equals("Red Square")) {
+                    pixelFound = true;
+                        pPosition = PixelPosition.RIGHT;  // Default to right
+                        break;  // Break from the loop
+                    }
+
+                if (pPosition == PixelPosition.UNKNOWN) {  // If no object was found within 7 seconds
+                    pPosition = PixelPosition.RIGHT;  // Default to right
+                }
+                if (pixelFound = true)
+                {
+                    detectWait = 0;
+                }
+
+            }
+        }
+
+        for (Recognition recognition : currentRecognitions) {
+            if (recognition.getConfidence() >= 0.93) { // <-- Added check here
+
+                // ... (the rest of your existing logic for processing the recognition)
+
+                switch(pPosition) {
+                    // ... (cases for LEFT, RIGHT, MIDDLE remain unchanged)
+
+                    case UNKNOWN:
+                        // You might want to add a break here if UNKNOWN is a case you want to handle
+                        break;
+                }
+
+                // If a valid recognition with high confidence was found, break out of the loop
+                break; // <-- Added break here
+            } else {
+                telemetry.addData("Skipped Recognition", "Low confidence"); // <-- Added else case here
+                telemetry.update();
+            }
+        }
 
         //Quickly search and see if we found a Pixel
         if(currentRecognitions.contains("Blue Square") || currentRecognitions.contains("Red Square")) {
@@ -282,6 +316,7 @@ public class AutonomousDrive extends LinearOpMode {
             telemetry.addData("Object Found %s", " Square");
             telemetry.update();
         }
+
 
         // Step through the list of recognitions and display info for each one.
         for (Recognition recognition : currentRecognitions) {
@@ -306,7 +341,7 @@ public class AutonomousDrive extends LinearOpMode {
                 telemetry.addData("Pixel Position: ", "Left Line");
                 telemetry.update();
                 justWait(1000);
-            } else if (x > 428) {
+            } else if (x > 600) {
                 pPosition = PixelPosition.RIGHT;
                 telemetry.addData("Pixel Position: ", "Right Line");
                 telemetry.update();
@@ -323,24 +358,47 @@ public class AutonomousDrive extends LinearOpMode {
 
             switch(pPosition) {
                 case LEFT:
+                    moveRobot("Mid Lines", MOVE_BACK);
+                    wristServo.setPosition(PICKUP_POSITION);
                     turnRobot("left", MOVE_LEFT);
+                    moveRobot("Small Back", MOVE_SMB);
+                    armMotor.setTargetPosition(0);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armMotor.setPower(1);
+                    sleep(3000);
                     telemetry.addData("Turn: Left", "");
                     telemetry.update();
                     justWait(1000);
-                    moveArm();
+                    sleep(500);
+                    leftServo.setPosition(LEFT_SERVO_CLOSE);
+                    rightServo.setPosition(RIGHT_SERVO_OPEN);
                     break;
                 case RIGHT:
+                    sleep(3000);
+                    moveRobot("Mid Lines", MOVE_BACK);
+                    wristServo.setPosition(PICKUP_POSITION);
                     turnRobot("right", MOVE_RIGHT);
+                    moveRobot("Small Back", MOVE_SMB);
+                    armMotor.setTargetPosition(0);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armMotor.setPower(1);
                     telemetry.addData("Turn: Right", "");
                     telemetry.update();
                     justWait(1000);
-                    moveArm();
+                    sleep(500);
+                    leftServo.setPosition(LEFT_SERVO_CLOSE);
+                    rightServo.setPosition(RIGHT_SERVO_OPEN);
                     break;
                 case MIDDLE:
+                    sleep(3000);
                     moveRobot("Center Line", MOVE_MIDDLE);
+                    armMotor.setTargetPosition(0);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armMotor.setPower(1);
                     telemetry.addData("Move: Forward", "");
                     telemetry.update();
                     justWait(1000);
+                    sleep(500);
                     moveArm();
                     break;
                 case UNKNOWN:
@@ -350,24 +408,46 @@ public class AutonomousDrive extends LinearOpMode {
             if(pixelFound) {
                 break;
             }
+            // After processing all recognitions
+            if (!pixelFound) {
+                // Assume the right side is the correct one
+                pPosition = PixelPosition.RIGHT;
+                telemetry.addData("Assumption: ", "Right Line because nothing was detected");
+                telemetry.update();
+                justWait(1000);
+
+
+                // Execute the default behavior since no object was detected
+                defaultBehavior(); // This will execute the movement for the RIGHT side
+
+                // Place the pixel here and set the flag
+                moveArm();
+                pixelPlaced = true; // Set the flag to true after placing the pixel
+
+            }
             // After telemetry.addData lines, send the data to the FTC Dashboard:
             TelemetryPacket packet = new TelemetryPacket();
             packet.put("Objects Detected", tfod.getRecognitions().size());
             packet.put("Object Found", pixelFound ? "Square" : "None");
             // Add any other telemetry data from this method
             dashboard.sendTelemetryPacket(packet);
-
-           //stop vision after pixel
-            if(pixelFound && !isObjectHandled) {
-                // Assuming you've just performed the actions needed after detection
-                moveArm();  // Example of action taken
-
-                // Now set the flag so you don't enter this if-block again
-                isObjectHandled = true;
-            }
         }   // end for() loop
-
+// At the end of the telemetryTfod() method, check if the pixel is placed
+        if (pixelPlaced) {
+            // If the pixel is placed, stop the opMode
+            requestOpModeStop();
+        }
     }   // end method telemetryTfod()
+
+    private void defaultBehavior() {
+        moveRobot("Mid Lines", MOVE_BACK);
+        turnRobot("right", MOVE_RIGHT);
+        moveRobot("Small Back", MOVE_SMB);
+        telemetry.addData("Turn: Right", "");
+        telemetry.update();
+        justWait(1000);
+        moveArm();
+    }
 
     private void moveRobot(String path, double time) {
         frontLeftMotor.setPower(-FORWARD_SPEED);
@@ -421,7 +501,6 @@ public class AutonomousDrive extends LinearOpMode {
                 frontRightMotor.setPower(0);
                 backRightMotor.setPower(0);
                 break;
-
         }
     }
 
@@ -430,10 +509,16 @@ public class AutonomousDrive extends LinearOpMode {
     private void moveArm() {
         telemetry.addData("Dropping Pixel", "");
         telemetry.update();
+        wristServo.setPosition(PICKUP_POSITION);
+        sleep(500);
         leftServo.setPosition(LEFT_SERVO_CLOSE);
         rightServo.setPosition(RIGHT_SERVO_OPEN);
         telemetry.addData("Pixel Dropped", "");
         telemetry.update();
+        sleep(500);
+        armMotor.setTargetPosition(0);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(1);
     }
 
 
