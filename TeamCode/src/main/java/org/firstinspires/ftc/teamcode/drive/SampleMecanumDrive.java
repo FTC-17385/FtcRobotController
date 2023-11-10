@@ -57,7 +57,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 1.5;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -148,7 +148,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }
 
-    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose, double v) {
         return new TrajectorySequenceBuilder(
                 startPose,
                 VEL_CONSTRAINT, ACCEL_CONSTRAINT,
@@ -158,7 +158,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public void turnAsync(double angle) {
         trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
+                trajectorySequenceBuilder(getPoseEstimate(), Math.toRadians(90))
                         .turn(angle)
                         .build()
         );
@@ -171,7 +171,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public void followTrajectoryAsync(Trajectory trajectory) {
         trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(trajectory.start())
+                trajectorySequenceBuilder(trajectory.start(), Math.toRadians(90))
                         .addTrajectory(trajectory)
                         .build()
         );
