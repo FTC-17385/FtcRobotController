@@ -40,7 +40,7 @@ public class AutonomousDrive extends LinearOpMode {
     private FtcDashboard dashboard; // Add this line for FTC Dashboard
 
     //private double MOVE_INDEX = 1;
-    private double MOVE_MIDDLE = 3.6;
+    private double MOVE_MIDDLE = 3.4;
     private double MOVE_LEFT = 1.5;
     private double MOVE_RIGHT = 1.5;
     private double MOVE_BACK = 2.8;
@@ -160,28 +160,6 @@ public class AutonomousDrive extends LinearOpMode {
         //armMotor.setPower(1);
        // sleep(3000);
         initTfod();
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-
-                telemetryTfod();
-
-                // Push telemetry to the Driver Station.
-                telemetry.update();
-
-                // Save CPU resources; can resume streaming when needed.
-                if (gamepad1.dpad_down) {
-                    visionPortal.stopStreaming();
-                } else if (gamepad1.dpad_up) {
-                    visionPortal.resumeStreaming();
-                }
-
-                // Share the CPU.
-                sleep(20);
-            }
-        }
-        waitForStart();
-        moveRobot("", 1);
-
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -201,7 +179,8 @@ public class AutonomousDrive extends LinearOpMode {
                 }
 
                 sleep(20);
-                break;
+
+                break; // Break out of the loop after the execution of tasks
             }
         }
 
@@ -261,20 +240,30 @@ public class AutonomousDrive extends LinearOpMode {
      * Add telemetry about TensorFlow Object Detection (TFOD) recognitions.
      */
     private void telemetryTfod() {
-        // At the beginning of your detection loop:
-        ElapsedTime timer = new ElapsedTime();  // Initialize timer
+        // Existing declarations...
+        ElapsedTime timer = new ElapsedTime();
         PixelPosition pPosition = PixelPosition.UNKNOWN;
         boolean pixelFound = false;
         boolean pixelPlaced = false;
 
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        timer.reset();  // Reset and start the timer
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
+
+        List<Recognition> currentRecognitions = null; // Initialize to null
+
+        timer.reset();
         double detectWait = 10.0;
 
         while (timer.seconds() < detectWait) {
+            // Update the list of recognitions inside the loop
+            currentRecognitions = tfod.getRecognitions();
+            if (currentRecognitions != null) {
+                telemetry.addData("# Objects Detected", currentRecognitions.size());
+                // Rest of your object detection logic...
+            } else {
+                telemetry.addData("# Objects Detected", 0);
+            }
+
             if (currentRecognitions.size() > 0) {
-                for(Recognition recognition : currentRecognitions) {
+                for (Recognition recognition : currentRecognitions) {
 
                     if(Arrays.asList(LABELS).contains(recognition.getLabel())) {
                         double x = (recognition.getLeft() + recognition.getRight()) / 2;
@@ -465,7 +454,7 @@ public class AutonomousDrive extends LinearOpMode {
         telemetry.addData("Dropping Pixel", "");
         telemetry.update();
         wristServo.setPosition(PICKUP_POSITION);
-        sleep(500);
+        sleep(1000);
         leftServo.setPosition(LEFT_SERVO_CLOSE);
         rightServo.setPosition(RIGHT_SERVO_OPEN);
         telemetry.addData("Pixel Dropped", "");
