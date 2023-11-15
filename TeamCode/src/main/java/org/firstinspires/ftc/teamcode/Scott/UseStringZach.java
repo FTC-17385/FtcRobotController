@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.Scott;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+@Disabled
 @TeleOp()
 //android studio added the import line for TeleOp when i wrote @TeleOp
 public class UseStringZach extends OpMode {

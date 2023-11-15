@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.gressel;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -7,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 @TeleOp
 public class ColorSensorTrial extends OpMode {
-
+@Disabled
     // Declare a ColorSensor object
     private ColorSensor colorSensor;
 

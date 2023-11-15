@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.gressel;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Planething", group="TeleOp")
 public class Planething extends OpMode {
-
+@Disabled
     // Assuming you have a servo named planeServo
     Servo planeServo;
 

@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.Scott;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+@Disabled
 @TeleOp()
 //import above with TeleOp on the last word comes from the above command
 public class PrimitiveTypesZach extends OpMode {

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.kuykendall;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import java.util.List;
 import java.util.Locale;
+@Disabled
 
 @Autonomous(name = "autotest", group = "Concept")
 public class autotest extends LinearOpMode {

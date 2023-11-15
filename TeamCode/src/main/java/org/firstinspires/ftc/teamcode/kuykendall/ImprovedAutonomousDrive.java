@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.kuykendall;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import java.util.List;
 import java.util.Locale;
  // [import all necessary libraries]
-
+ @Disabled
 @TeleOp(name = "Improved Auto Vision Drive", group = "Auto")
 public class ImprovedAutonomousDrive extends LinearOpMode {
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.gressel;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
+@Disabled
 @TeleOp(name = "BasicTeleOp1", group = "TeleOp")
 public class AnotherArmCode extends OpMode {
 
