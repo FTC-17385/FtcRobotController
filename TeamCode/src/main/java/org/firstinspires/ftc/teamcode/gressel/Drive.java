@@ -8,8 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 @TeleOp
 public class Drive extends OpMode {
-    @Disabled
-
+    
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private Gamepad gamepad;
 
