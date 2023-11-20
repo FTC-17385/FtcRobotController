@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp
 @Config
 public class planetest extends LinearOpMode {
-@Disabled
+
     // Servo
     private Servo planeServo;
 

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Planething", group="TeleOp")
 public class Planething extends OpMode {
-@Disabled
+
     // Assuming you have a servo named planeServo
     Servo planeServo;
 

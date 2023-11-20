@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name = "EpicoDelivery", group = "Autonomous")
 public class EpicoDelivery extends LinearOpMode {
-@Disabled
     private Servo wristServo;
     private Servo leftServo;
     private Servo rightServo;

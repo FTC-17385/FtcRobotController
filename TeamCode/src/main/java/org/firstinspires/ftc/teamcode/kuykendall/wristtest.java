@@ -11,8 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 // no @TeleOp(name="WristTest", group="Test")
 @TeleOp
 @Config
-public class wristtest extends LinearOpMode {
-@Disabled
+public class wristtest extends LinearOpMode{
     // Servo
     private Servo wristServo;
 
