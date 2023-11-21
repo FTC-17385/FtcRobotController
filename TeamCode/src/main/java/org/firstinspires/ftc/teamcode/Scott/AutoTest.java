@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.shared.RobotHardware;
 
 
-@Autonomous(name = "Auto Test", group = "Auto")
+@Autonomous(name = "Autonomous Test", group = "Auto")
 public class AutoTest extends LinearOpMode {
     RobotHardware robot       = new RobotHardware(this);
 
