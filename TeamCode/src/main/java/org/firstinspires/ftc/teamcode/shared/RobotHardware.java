@@ -34,7 +34,11 @@ public class RobotHardware {
     public static double RIGHT_SERVO_CLOSE = 0.3;
     static final double     FORWARD_SPEED = -0.2;
     static final double     TURN_SPEED    = -0.2;
-
+    static final double     COUNTS_PER_MOTOR_REV    = 484.5 ;
+    static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
+    static final double     WHEEL_DIAMETER_INCHES   = 1.889 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
     //arm encoder values
     public static int PICKUP_POSITION_ENCODER = 0;
     public static int DROPOFF_POSITION_ENCODER = -3630;
@@ -71,6 +75,7 @@ public class RobotHardware {
         rightServo = myOpMode.hardwareMap.get(Servo.class, "rightServo");
         wristServo.setPosition(WRIST_START_POSITION);
     }
+
     public void driveRobot(double time){
         frontLeft.setPower(-FORWARD_SPEED);
         backLeft.setPower(-FORWARD_SPEED);
@@ -87,6 +92,54 @@ public class RobotHardware {
         frontRight.setPower(0);
         backRight.setPower(0);
 
+    }
+
+    public void turnRobotRight(double speed, double distance, double timeout){
+    }
+    public void driveRobot(double speed, double distance, double timeout){
+        int newFrontRightTarget = frontRight.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+        int newBackRightTarget = backRight.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+        int newFrontLeftTarget = frontLeft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+        int newBackLeftTarget = backLeft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+
+        frontRight.setTargetPosition(newFrontRightTarget);
+        backRight.setTargetPosition(newBackRightTarget);
+        frontLeft.setTargetPosition(newFrontLeftTarget);
+        backLeft.setTargetPosition(newBackLeftTarget);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        runtime.reset();
+        frontRight.setPower(Math.abs(speed));
+        backRight.setPower(Math.abs(speed));
+        frontLeft.setPower(Math.abs(speed));
+        backLeft.setPower(Math.abs(speed));
+
+        while ((runtime.seconds() < timeout) &&
+                (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()));
+
+        myOpMode.telemetry.addData("Running to",  " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
+        myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
+                frontRight.getCurrentPosition(), backRight.getCurrentPosition(), frontLeft.getCurrentPosition(), backLeft.getCurrentPosition());
+        myOpMode.telemetry.update();
+
+        frontRight.setPower(0);
+        backRight.setPower(0);
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }
