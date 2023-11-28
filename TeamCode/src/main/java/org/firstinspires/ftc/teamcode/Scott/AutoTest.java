@@ -18,6 +18,7 @@ public class AutoTest extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             robot.driveRobot(.5, 10, 5);
+            robot.turnRobot("right", );
             break;
         }
         sleep(50);

@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import java.util.Locale;
+
 public class RobotHardware {
     private LinearOpMode myOpMode = null;
     private DcMotor frontLeft = null;
@@ -32,8 +34,8 @@ public class RobotHardware {
     public static double LEFT_SERVO_CLOSE = 0.0;
     public static double RIGHT_SERVO_OPEN = 0.25;
     public static double RIGHT_SERVO_CLOSE = 0.3;
-    static final double     FORWARD_SPEED = -0.2;
-    static final double     TURN_SPEED    = -0.2;
+    static final double     FORWARD_SPEED = 0.4;
+    static final double     TURN_SPEED    = 0.4;
     static final double     COUNTS_PER_MOTOR_REV    = 484.5 ;
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 1.889 ;     // For figuring circumference
@@ -75,6 +77,41 @@ public class RobotHardware {
         rightServo = myOpMode.hardwareMap.get(Servo.class, "rightServo");
         wristServo.setPosition(WRIST_START_POSITION);
     }
+    public void turnRobot(String direction, double time) {
+        switch(direction.toLowerCase(Locale.ROOT)) {
+            case "left":
+                frontLeft.setPower(TURN_SPEED);
+                backLeft.setPower(TURN_SPEED);
+                frontRight.setPower(-TURN_SPEED);
+                backRight.setPower(-TURN_SPEED);
+                runtime.reset();
+                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
+                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());
+                    myOpMode.telemetry.update();
+                }
+                frontLeft.setPower(0);
+                backLeft.setPower(0);
+                frontRight.setPower(0);
+                backRight.setPower(0);
+                break;
+            case "right":
+                frontLeft.setPower(-TURN_SPEED);
+                backLeft.setPower(-TURN_SPEED);
+                frontRight.setPower(TURN_SPEED);
+                backRight.setPower(TURN_SPEED);
+                runtime.reset();
+                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
+                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());
+                    myOpMode.telemetry.update();
+                }
+                frontLeft.setPower(0);
+                backLeft.setPower(0);
+                frontRight.setPower(0);
+                backRight.setPower(0);
+                break;
+
+        }
+    }
 
     public void driveRobot(double time){
         frontLeft.setPower(-FORWARD_SPEED);
@@ -93,7 +130,6 @@ public class RobotHardware {
         backRight.setPower(0);
 
     }
-
     public void turnRobotRight(double speed, double distance, double timeout){
     }
     public void driveRobot(double speed, double distance, double timeout){
