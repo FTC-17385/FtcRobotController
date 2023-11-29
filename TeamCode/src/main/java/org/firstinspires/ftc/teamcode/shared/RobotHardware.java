@@ -21,8 +21,8 @@ public class RobotHardware {
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private DcMotor armMotor = null;
-    private Servo leftServo  = null;
-    private Servo rightServo  = null;
+    private Servo leftServo = null;
+    private Servo rightServo = null;
     private Servo wristServo = null;
     private ElapsedTime runtime = new ElapsedTime();
     public static double PICKUP_POSITION = 0.16;
@@ -34,12 +34,12 @@ public class RobotHardware {
     public static double LEFT_SERVO_CLOSE = 0.0;
     public static double RIGHT_SERVO_OPEN = 0.25;
     public static double RIGHT_SERVO_CLOSE = 0.3;
-    static final double     FORWARD_SPEED = 0.4;
-    static final double     TURN_SPEED    = 0.4;
-    static final double     COUNTS_PER_MOTOR_REV    = 484.5 ;
-    static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
-    static final double     WHEEL_DIAMETER_INCHES   = 1.889 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    static final double FORWARD_SPEED = 0.4;
+    static final double TURN_SPEED = 0.4;
+    static final double COUNTS_PER_MOTOR_REV = 484.5;
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
+    static final double WHEEL_DIAMETER_INCHES = 1.889;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     //arm encoder values
     public static int PICKUP_POSITION_ENCODER = 0;
@@ -59,7 +59,10 @@ public class RobotHardware {
     private TelemetryPacket packet;
     public static double Launch_POSITION = 0.8;
     public static double HOLD_POSITION = 0.3;
-    public RobotHardware (LinearOpMode opmode) {myOpMode = opmode; }
+
+    public RobotHardware(LinearOpMode opmode) {
+        myOpMode = opmode;
+    }
 
     public void init() {
         frontLeft = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
@@ -77,43 +80,8 @@ public class RobotHardware {
         rightServo = myOpMode.hardwareMap.get(Servo.class, "rightServo");
         wristServo.setPosition(WRIST_START_POSITION);
     }
-    public void turnRobot(String direction, double time) {
-        switch(direction.toLowerCase(Locale.ROOT)) {
-            case "left":
-                frontLeft.setPower(TURN_SPEED);
-                backLeft.setPower(TURN_SPEED);
-                frontRight.setPower(-TURN_SPEED);
-                backRight.setPower(-TURN_SPEED);
-                runtime.reset();
-                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
-                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());
-                    myOpMode.telemetry.update();
-                }
-                frontLeft.setPower(0);
-                backLeft.setPower(0);
-                frontRight.setPower(0);
-                backRight.setPower(0);
-                break;
-            case "right":
-                frontLeft.setPower(-TURN_SPEED);
-                backLeft.setPower(-TURN_SPEED);
-                frontRight.setPower(TURN_SPEED);
-                backRight.setPower(TURN_SPEED);
-                runtime.reset();
-                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
-                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());
-                    myOpMode.telemetry.update();
-                }
-                frontLeft.setPower(0);
-                backLeft.setPower(0);
-                frontRight.setPower(0);
-                backRight.setPower(0);
-                break;
 
-        }
-    }
-
-    public void driveRobot(double time){
+    public void driveRobot(double time) {
         frontLeft.setPower(-FORWARD_SPEED);
         backLeft.setPower(-FORWARD_SPEED);
         frontRight.setPower(-FORWARD_SPEED);
@@ -130,13 +98,12 @@ public class RobotHardware {
         backRight.setPower(0);
 
     }
-    public void turnRobotRight(double speed, double distance, double timeout){
-    }
-    public void driveRobot(double speed, double distance, double timeout){
-        int newFrontRightTarget = frontRight.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-        int newBackRightTarget = backRight.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-        int newFrontLeftTarget = frontLeft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-        int newBackLeftTarget = backLeft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+
+    public void driveRobot(double speed, double distance, double timeout) {
+        int newFrontRightTarget = frontRight.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+        int newBackRightTarget = backRight.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+        int newFrontLeftTarget = frontLeft.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+        int newBackLeftTarget = backLeft.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
 
         frontRight.setTargetPosition(newFrontRightTarget);
         backRight.setTargetPosition(newBackRightTarget);
@@ -160,10 +127,11 @@ public class RobotHardware {
         backLeft.setPower(Math.abs(speed));
 
         while ((runtime.seconds() < timeout) &&
-                (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()));
+                (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()))
+            ;
 
-        myOpMode.telemetry.addData("Running to",  " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
-        myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
+        myOpMode.telemetry.addData("Running to", " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
+        myOpMode.telemetry.addData("Currently at", " at %7d :%7d",
                 frontRight.getCurrentPosition(), backRight.getCurrentPosition(), frontLeft.getCurrentPosition(), backLeft.getCurrentPosition());
         myOpMode.telemetry.update();
 
@@ -177,7 +145,102 @@ public class RobotHardware {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
 }
 
+    /*public void turnRobot(double time) {
+        frontLeft.setPower(-TURN_SPEED);
+        backLeft.setPower(-TURN_SPEED);
+        frontRight.setPower(-TURN_SPEED);
+        backRight.setPower(-TURN_SPEED);
+        runtime.reset();
+        while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
+            myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", "", runtime.seconds());
+            myOpMode.telemetry.update();
+        }
 
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+    public void turnRobot(String direction, double speed, double distance, double timeout) {
+        switch (direction.toLowerCase(Locale.ROOT)) {
+            case "left":
+                frontLeft.setPower(TURN_SPEED);
+                backLeft.setPower(TURN_SPEED);
+                frontRight.setPower(-TURN_SPEED);
+                backRight.setPower(-TURN_SPEED);
+                runtime.reset();
+                while (myOpMode.opModeIsActive() && (runtime.seconds() < myOpMode.time)) {
+                    //addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());//
+                    myOpMode.telemetry.update();
+                }
+                frontLeft.setPower(0);
+                backLeft.setPower(0);
+                frontRight.setPower(0);
+                backRight.setPower(0);
+                break;
+            case "right":
+                frontLeft.setPower(-TURN_SPEED);
+                backLeft.setPower(-TURN_SPEED);
+                frontRight.setPower(TURN_SPEED);
+                backRight.setPower(TURN_SPEED);
+                runtime.reset();
+                while (myOpMode.opModeIsActive() && (runtime.seconds() < myOpMode.time)) {
+                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", direction, runtime.seconds());
+                    myOpMode.telemetry.update();
+                }
+                frontLeft.setPower(0);
+                backLeft.setPower(0);
+                frontRight.setPower(0);
+                backRight.setPower(0);
+                break;
+
+            int newFrontRightTarget = frontRight.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+            int newBackRightTarget = backRight.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+            int newFrontLeftTarget = frontLeft.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+            int newBackLeftTarget = backLeft.getCurrentPosition() + (int) (distance * COUNTS_PER_INCH);
+
+            frontRight.setTargetPosition(newFrontRightTarget);
+            backRight.setTargetPosition(newBackRightTarget);
+            frontLeft.setTargetPosition(newFrontLeftTarget);
+           backLeft.setTargetPosition(newBackLeftTarget);
+
+           frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            runtime.reset();
+            frontRight.setPower(Math.abs(speed));
+            backRight.setPower(Math.abs(speed));
+            frontLeft.setPower(Math.abs(speed));
+            backLeft.setPower(Math.abs(speed));
+
+            while ((runtime.seconds() < timeout) &&
+                    (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy())) ;
+
+           myOpMode.telemetry.addData("Running to", " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
+            myOpMode.telemetry.addData("Currently at", " at %7d :%7d",
+                    frontRight.getCurrentPosition(), backRight.getCurrentPosition(), frontLeft.getCurrentPosition(), backLeft.getCurrentPosition());
+            myOpMode.telemetry.update();
+
+            frontRight.setPower(0);
+            backRight.setPower(0);
+            frontLeft.setPower(0);
+            backLeft.setPower(0);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+}*/
