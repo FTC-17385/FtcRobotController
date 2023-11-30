@@ -26,7 +26,7 @@ public class MotionHardware {
     private DcMotor backRightMotor = null;
     private Servo leftGripper = null;
     private Servo rightGripper = null;
-    private Servo wrist = null;
+    private Servo wristServo = null;
     private DcMotor armMotor = null;
 
     // Variables
@@ -93,8 +93,8 @@ public class MotionHardware {
         leftGripper = myOpMode.hardwareMap.get(Servo.class, "leftGripper");
         rightGripper = myOpMode.hardwareMap.get(Servo.class, "rightGripper");
         armMotor = myOpMode.hardwareMap.get(DcMotor.class, "armMotor");
-        wrist = myOpMode.hardwareMap.servo.get("wristServo");
-        wrist.setPosition(-.1);
+        wristServo = myOpMode.hardwareMap.servo.get("wristServo");
+        wristServo.setPosition(-.1);
         //leftGripper.setPosition(0); // Adjust the position value as needed
         //rightGripper.setPosition(1); // Adjust the position value as needed
         runtime.reset();

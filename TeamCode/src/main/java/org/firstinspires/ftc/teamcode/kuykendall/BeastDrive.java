@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.Range;
 public class BeastDrive extends OpMode {
 
     // Drivetrain motors
-    private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
 
     // Arm motor
     private DcMotor armMotor;
@@ -60,13 +60,13 @@ public class BeastDrive extends OpMode {
     @Override
     public void init() {
         // Drivetrain initialization
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeftMotor");
+        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRightMotor");
+        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeftMotor");
+        backRightMotor = hardwareMap.get(DcMotor.class, "backRightMotor");
         planeServo = hardwareMap.get(Servo.class, "planeServo");
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         //planeServo.setPosition(-0.2);
         // Arm initialization
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
@@ -102,19 +102,19 @@ public class BeastDrive extends OpMode {
             isTurning180 = true;
             turnStartTime = System.currentTimeMillis();
 
-            frontLeft.setPower(-FAST_ROTATE_SPEED);
-            frontRight.setPower(FAST_ROTATE_SPEED);
-            backLeft.setPower(-FAST_ROTATE_SPEED);
-            backRight.setPower(FAST_ROTATE_SPEED);
+            frontLeftMotor.setPower(-FAST_ROTATE_SPEED);
+            frontRightMotor.setPower(FAST_ROTATE_SPEED);
+            backLeftMotor.setPower(-FAST_ROTATE_SPEED);
+            backRightMotor.setPower(FAST_ROTATE_SPEED);
         }
 
         if (isTurning180 && (System.currentTimeMillis() - turnStartTime) > TURN_180_TIME_MS) {
             isTurning180 = false;
 
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
+            frontLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
         }
 
         if (isTurning180) {
@@ -150,10 +150,10 @@ public class BeastDrive extends OpMode {
             backRightPower /= maxPower;
         }
 
-        frontLeft.setPower(frontLeftPower);
-        frontRight.setPower(frontRightPower);
-        backLeft.setPower(backLeftPower);
-        backRight.setPower(backRightPower);
+        frontLeftMotor.setPower(frontLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backLeftMotor.setPower(backLeftPower);
+        backRightMotor.setPower(backRightPower);
 
         // Arm logic
         // Arm logic
@@ -204,10 +204,10 @@ public class BeastDrive extends OpMode {
 
         // Telemetry
         TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Front Left Power", frontLeft.getPower());
-        packet.put("Front Right Power", frontRight.getPower());
-        packet.put("Back Left Power", backLeft.getPower());
-        packet.put("Back Right Power", backRight.getPower());
+        packet.put("Front Left Power", frontLeftMotor.getPower());
+        packet.put("Front Right Power", frontRightMotor.getPower());
+        packet.put("Back Left Power", backLeftMotor.getPower());
+        packet.put("Back Right Power", backRightMotor.getPower());
         packet.put("Arm Power", armMotor.getPower());
         packet.put("Wrist Servo Position", wristServo.getPosition() == PICKUP_POSITION ? "Pickup" : "Dropoff");
         packet.put("Gripper", leftServo.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");

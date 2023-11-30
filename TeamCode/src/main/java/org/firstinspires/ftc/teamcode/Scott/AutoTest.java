@@ -34,7 +34,7 @@ public class AutoTest extends LinearOpMode {
             //Pretend to drop pixel
             sleep(1000);
             //Backup and clear pixel
-            robot.moveRobot(.5, -5, 5);
+            robot.moveRobot(.5, 5, 5);
             //Turn to parking location
             robot.turnRobot(Direction.LEFT, 12, .5, 10);
             //Park
