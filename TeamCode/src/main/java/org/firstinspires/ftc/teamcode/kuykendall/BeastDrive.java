@@ -21,7 +21,7 @@ public class BeastDrive extends OpMode {
     private DcMotor armMotor;
 
     // Wrist and gripper servos
-    private Servo wristServo, leftServo, rightServo;
+    private Servo wristServo, leftGripper, rightGripper;
 
     // FTC Dashboard
     private FtcDashboard dashboard;
@@ -75,8 +75,8 @@ public class BeastDrive extends OpMode {
 
         // Wrist and gripper initialization
         wristServo = hardwareMap.get(Servo.class, "wristServo");
-        leftServo = hardwareMap.get(Servo.class, "leftServo");
-        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        leftGripper = hardwareMap.get(Servo.class, "leftGripper");
+        rightGripper = hardwareMap.get(Servo.class, "rightGripper");
 
         // Initialize your servo in the hardware map
       //  planeServo = hardwareMap.servo.get("planeServo");
@@ -179,11 +179,11 @@ public class BeastDrive extends OpMode {
 
         // Gripper logic
         if (gamepad1.x) {
-            leftServo.setPosition(LEFT_SERVO_OPEN);
-            rightServo.setPosition(RIGHT_SERVO_OPEN);
+            leftGripper.setPosition(LEFT_SERVO_OPEN);
+            rightGripper.setPosition(RIGHT_SERVO_OPEN);
         } else if (gamepad1.b) {
-            leftServo.setPosition(LEFT_SERVO_CLOSE);
-            rightServo.setPosition(RIGHT_SERVO_CLOSE);
+            leftGripper.setPosition(LEFT_SERVO_CLOSE);
+            rightGripper.setPosition(RIGHT_SERVO_CLOSE);
         }
 
         // Resetting the armMotor Encoder
@@ -210,7 +210,7 @@ public class BeastDrive extends OpMode {
         packet.put("Back Right Power", backRightMotor.getPower());
         packet.put("Arm Power", armMotor.getPower());
         packet.put("Wrist Servo Position", wristServo.getPosition() == PICKUP_POSITION ? "Pickup" : "Dropoff");
-        packet.put("Gripper", leftServo.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");
+        packet.put("Gripper", leftGripper.getPosition() == LEFT_SERVO_OPEN ? "Open" : "Closed");
         packet.put("Arm Encoder Value", armMotor.getCurrentPosition());
         dashboard.sendTelemetryPacket(packet);
     }

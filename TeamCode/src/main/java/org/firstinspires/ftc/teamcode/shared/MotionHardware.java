@@ -36,9 +36,20 @@ public class MotionHardware {
     public static final double TURN_SPEED = 0.4;
     private static final double MAX_SPEED = 1;
     public static double detectWait = 6.0;
-    public static double wristStart = 0.4;
-    public static double wristRight = 0;
-    public static double wristLeft = 1;
+    public static double wristDown = 0.77;
+    public static double wristUp = 0;
+    public static double PICKUP_POSITION = 0.16;
+    public static double DROPOFF_POSITION = 0.78;
+
+    // Gripper positions
+    public static double LEFT_SERVO_CLOSE = 0.35;
+    public static double LEFT_SERVO_OPEN = 0.0; //0
+    public static double RIGHT_SERVO_CLOSE = 0.25;
+    public static double RIGHT_SERVO_OPEN = 0.3; //.3
+
+    //arm encoder values
+    public static int PICKUP_POSITION_ENCODER = 0;
+    public static int DROPOFF_POSITION_ENCODER = -3630;
 
     public enum Direction {
         RIGHT,
@@ -48,7 +59,7 @@ public class MotionHardware {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // eg: goBilda Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
-    static final double     WHEEL_DIAMETER_INCHES   = 3.5;    //3.778 ;     // For figuring circumference
+    static final double     WHEEL_DIAMETER_INCHES   = 4;    //3.778 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
@@ -64,6 +75,8 @@ public class MotionHardware {
         frontRightMotor = myOpMode.hardwareMap.get(DcMotor.class, "frontRightMotor");
         backLeftMotor = myOpMode.hardwareMap.get(DcMotor.class, "backLeftMotor");
         backRightMotor = myOpMode.hardwareMap.get(DcMotor.class, "backRightMotor");
+        //wristServo = myOpMode.hardwareMap.get(Servo.class, "wristServo");
+
 
         //frontLeftMotor.setDirection(DcMotorEx.Direction.FORWARD);
         //frontRightMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -95,15 +108,15 @@ public class MotionHardware {
         rightGripper = myOpMode.hardwareMap.get(Servo.class, "rightGripper");
         armMotor = myOpMode.hardwareMap.get(DcMotor.class, "armMotor");
         wristServo = myOpMode.hardwareMap.servo.get("wristServo");
-        wristServo.setPosition(-.1);
-        //leftGripper.setPosition(0); // Adjust the position value as needed
-        //rightGripper.setPosition(1); // Adjust the position value as needed
+        wristServo.setPosition(wristUp);
+        leftGripper.setPosition(LEFT_SERVO_OPEN); // Adjust the position value as needed
+        rightGripper.setPosition(RIGHT_SERVO_OPEN); // Adjust the position value as needed
         runtime.reset();
 
-        sleep(1000);
+        sleep(5000);
 
-        leftGripper.setPosition(1); // Adjust the position value as needed
-        rightGripper.setPosition(0); // Adjust the position value as needed
+        leftGripper.setPosition(LEFT_SERVO_CLOSE); // Adjust the position value as needed
+        rightGripper.setPosition(RIGHT_SERVO_CLOSE); // Adjust the position value as needed
 
 
         // Send telemetry message to indicate successful Encoder reset
@@ -232,6 +245,7 @@ public class MotionHardware {
     public void turnRobot(Direction direction, double distance, double speed, double timeoutS) {
 
 
+
         int newFrontLeftTarget = (direction == Direction.LEFT) ?
                 frontLeftMotor.getCurrentPosition() + (int)((-distance) * COUNTS_PER_INCH) :
                 frontLeftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
@@ -305,8 +319,8 @@ public class MotionHardware {
     private void dropProp() {
         telemetry.addData("Dropping Pixel", "");
         telemetry.update();
-        leftGripper.setPosition(0.9); // Adjust the position value as needed
-        rightGripper.setPosition(0.1); // Adjust the position value as needed
+        leftGripper.setPosition(LEFT_SERVO_OPEN); // Adjust the position value as needed
+        rightGripper.setPosition(RIGHT_SERVO_OPEN); // Adjust the position value as needed
         telemetry.addData("Pixel Dropped", "");
         telemetry.update();
         myOpMode.sleep(1000);
@@ -441,8 +455,21 @@ public class MotionHardware {
         backLeftMotor.setPower(0);
         backRightMotor.setPower(0);
     }
+    public void gripperClose() {
+        leftGripper.setPosition(LEFT_SERVO_CLOSE);
+        rightGripper.setPosition(RIGHT_SERVO_CLOSE);
+    }
 
-
+    public void gripperOpen() {
+        leftGripper.setPosition(LEFT_SERVO_OPEN);
+        rightGripper.setPosition(RIGHT_SERVO_OPEN);
+    }
+    public void wristUp() {
+        wristServo.setPosition(wristUp);
+    }
+    public void wristDown() {
+        wristServo.setPosition(wristDown);
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private void debugWait() {
         if (DEBUG) {
