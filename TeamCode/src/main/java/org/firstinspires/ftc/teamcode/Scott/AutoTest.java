@@ -15,6 +15,7 @@ public class AutoTest extends LinearOpMode {
 
     MotionHardware robot = new MotionHardware(this);
     VisionHardware vision = new VisionHardware(this);
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init();
@@ -22,26 +23,41 @@ public class AutoTest extends LinearOpMode {
 
         waitForStart();
 
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             PropPosition propPosition = vision.detectProp();
+
 
             // Center Strike Line
             // - Forward: 31.75
             // - Reverse: -44.75
 
-            //Drop off pixel
-            robot.moveRobot(.5, -44.75, 10);
-            //Pretend to drop pixel
-            sleep(1000);
-            //Backup and clear pixel
-            robot.moveRobot(.5, 5, 5);
-            //Turn to parking location
-            robot.turnRobot(Direction.LEFT, 12, .5, 10);
-            //Park
-            robot.moveRobot(.5, 25, 10);
+            switch (propPosition) {
+                case UNKNOWN:
+                    robot.moveRobot(.5, -30, 10);
+                case LEFT:
+                    robot.moveRobot(.5, -20, 10);
+                case RIGHT:
+                    robot.moveRobot(.5, -10, 10);
+                case MIDDLE:
+                    //Drop off pixel
+                    robot.moveRobot(.5, -44.75, 10);
+                    /*//Pretend to drop pixel
+                    sleep(1000);                    //Backup and clear pixel
+                    robot.moveRobot(.5, 5, 5);
+                    //Turn to parking location
+                    sleep(1000);
+                    //gripper right here, move down and drop, then move up
+                    robot.turnRobot(Direction.LEFT, 12, .5, 10);
+                    sleep(1000);
+                    //Park
+                    robot.moveRobot(.5, 25, 10);
+                    sleep(1000);
 
-            sleep(20);
-            break;
+                    sleep(20);
+                    break;*/
+
+
+            }
         }
     }
 }
