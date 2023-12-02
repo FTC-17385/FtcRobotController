@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Scott.VisionI1.DEBUG;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,6 +76,7 @@ public class MotionHardware {
         frontRightMotor = myOpMode.hardwareMap.get(DcMotor.class, "frontRightMotor");
         backLeftMotor = myOpMode.hardwareMap.get(DcMotor.class, "backLeftMotor");
         backRightMotor = myOpMode.hardwareMap.get(DcMotor.class, "backRightMotor");
+        armMotor = myOpMode.hardwareMap.get(DcMotor.class, "armMotor");
         //wristServo = myOpMode.hardwareMap.get(Servo.class, "wristServo");
 
 
@@ -86,22 +88,26 @@ public class MotionHardware {
         frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         backRightMotor.setDirection(DcMotor.Direction.FORWARD);
+        armMotor.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //TODO Once wrist/gripper is fixed move pixel load step to new function
         leftGripper = myOpMode.hardwareMap.get(Servo.class, "leftGripper");
@@ -129,7 +135,6 @@ public class MotionHardware {
 
 
     }
-
     public void moveRobot(String path, double time) {
 
         switch (path.toLowerCase(Locale.ROOT)) {
@@ -180,6 +185,28 @@ public class MotionHardware {
      * @param  distance distance in inches you want the robot to move
      * @param  timeoutS failsafe time to stop motion if motors are still busy
      */
+    public void moveArm(double speed, double distance, double timeoutS) {
+        int newArmTarget = armMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+        armMotor.setTargetPosition(newArmTarget);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        armMotor.setPower(Math.abs(speed));
+        while (myOpMode.opModeIsActive() &&
+                (runtime.seconds() < timeoutS) &&
+                (armMotor.isBusy())) {
+            myOpMode.telemetry.addData("Running to","%7d:", newArmTarget);
+            myOpMode.telemetry.addData("Currently at",  "at %7d");
+                    armMotor.getCurrentPosition();
+            myOpMode.telemetry.update();
+
+        }
+        armMotor.setPower(0);
+        armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        myOpMode.telemetry.addData("Currently at",  "at %7d",
+                armMotor.getCurrentPosition());
+        myOpMode.telemetry.update();
+        sleep(1000);
+    }
     public void moveRobot(double speed, double distance, double timeoutS) {
 
         //frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
