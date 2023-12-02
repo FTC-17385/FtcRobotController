@@ -34,6 +34,10 @@ public class AutoRARight extends LinearOpMode {
                 case UNKNOWN:
                     robot.moveRobot(.5, -33, 10);
                     sleep(1000);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 7, .5, 10);
+                    sleep(1000);
+                    robot.moveRobot(.5, 3, 10);
+                    sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(1000);
                     robot.wristDown();
@@ -42,14 +46,14 @@ public class AutoRARight extends LinearOpMode {
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(500);
-                    robot.wristUp();
-                    sleep(1000);
-                    robot.gripperClose();
+                    robot.moveRobot(.5, -5, 10);
                     break;
                 case LEFT:
                     robot.moveRobot(.5, -33, 10);
                     sleep(1000);
-                    robot.turnRobot(MotionHardware.Direction.LEFT, 10, 10, 10);
+                    robot.turnRobot(MotionHardware.Direction.RIGHT, 7, .5, 10);
+                    sleep(1000);
+                    robot.moveRobot(.5, 3, 10);
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(1000);
@@ -59,14 +63,15 @@ public class AutoRARight extends LinearOpMode {
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(500);
-                    robot.wristUp();
-                    sleep(1000);
-                    robot.gripperClose();
+                    robot.moveRobot(.5, -5, 10);
+
                     break;
                 case RIGHT:
                     robot.moveRobot(.5, -33, 10);
                     sleep(1000);
-                    robot.turnRobot(MotionHardware.Direction.RIGHT, 10, 10, 10);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 7, .5, 10);
+                    sleep(1000);
+                    robot.moveRobot(.5, 3, 10);
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(1000);
@@ -76,9 +81,7 @@ public class AutoRARight extends LinearOpMode {
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(500);
-                    robot.wristUp();
-                    sleep(1000);
-                    robot.gripperClose();
+                    robot.moveRobot(.5, -5, 10);
                     break;
                 case MIDDLE:
                     robot.moveRobot(.5, -33, 10);
@@ -91,9 +94,7 @@ public class AutoRARight extends LinearOpMode {
                     sleep(1000);
                     robot.moveArm(.5, 20, 10);
                     sleep(500);
-                    robot.wristUp();
-                    sleep(1000);
-                    robot.gripperClose();
+                    robot.moveRobot(.5, -5, 10);
                     break;
 
             }
