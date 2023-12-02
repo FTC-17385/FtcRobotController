@@ -32,16 +32,80 @@ public class AutoBARight extends LinearOpMode {
 
             switch (propPosition) {
                 case UNKNOWN:
-                    robot.moveRobot(.5, -44.75, 10);
+                    robot.moveRobot(.5, -25, 10);
+                    sleep(500);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 12, .5, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, 10, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -10, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.wristDown();
+                    sleep(500);
+                    robot.gripperOpen();
+                    sleep(500);
+                    robot.moveRobot(.5, -5, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    break;
                 case LEFT:
-                    robot.moveRobot(.5, -44.75, 10);
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(500);
+                    robot.turnRobot(MotionHardware.Direction.RIGHT, 7, .5, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, 10, 10);
+                    sleep(500);
+                    robot.moveArm(.5, -5, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -10, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.wristDown();
+                    sleep(500);
+                    robot.gripperOpen();
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -5, 10);
+                    break;
                 case RIGHT:
-                    robot.moveRobot(.5, -44.75, 10);
+                    robot.moveRobot(.5, -25, 10);
+                    sleep(500);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 12, .5, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, 10, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -10, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.wristDown();
+                    sleep(500);
+                    robot.gripperOpen();
+                    sleep(500);
+                    robot.moveRobot(.5, -5, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    break;
                 case MIDDLE:
-                    robot.moveRobot(.5, -44.75, 10);
-
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.wristDown();
+                    sleep(500);
+                    robot.gripperOpen();
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -5, 10);
+                    break;
 
             }
+            break;
         }
     }
 }
