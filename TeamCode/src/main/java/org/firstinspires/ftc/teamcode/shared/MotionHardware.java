@@ -119,7 +119,7 @@ public class MotionHardware {
         rightGripper.setPosition(RIGHT_SERVO_OPEN); // Adjust the position value as needed
         runtime.reset();
 
-        sleep(5000);
+        sleep(2000);
 
         leftGripper.setPosition(LEFT_SERVO_CLOSE); // Adjust the position value as needed
         rightGripper.setPosition(RIGHT_SERVO_CLOSE); // Adjust the position value as needed
@@ -188,6 +188,7 @@ public class MotionHardware {
     public void moveArm(double speed, double distance, double timeoutS) {
         int newArmTarget = armMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
         armMotor.setTargetPosition(newArmTarget);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         runtime.reset();
         armMotor.setPower(Math.abs(speed));

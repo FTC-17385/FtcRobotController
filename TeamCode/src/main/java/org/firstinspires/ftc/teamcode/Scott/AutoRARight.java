@@ -19,8 +19,8 @@ public class AutoRARight extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot.init();
         vision.init();
-
         waitForStart();
+
 
         while (opModeIsActive()) {
             PropPosition propPosition = vision.detectProp();
@@ -32,70 +32,69 @@ public class AutoRARight extends LinearOpMode {
 
             switch (propPosition) {
                 case UNKNOWN:
-                    robot.moveArm(.5, 45, 10);
-                    break;
-
-                    /*robot.moveRobot(.5, -35, 10);
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(1000);
+                    robot.moveArm(.5, 20, 10);
                     sleep(1000);
                     robot.wristDown();
                     sleep(1000);
                     robot.gripperOpen();
                     sleep(1000);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
                     robot.wristUp();
                     sleep(1000);
                     robot.gripperClose();
-                    sleep(1000);
-                    robot.moveRobot(.5, 35, 10);
-                    break*/
+                    break;
                 case LEFT:
-                    robot.moveArm(.5, 45, 10);
-                    break;
-                    /*robot.moveRobot(.5, -35, 10);
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(1000);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 10, 10, 10);
+                    sleep(1000);
+                    robot.moveArm(.5, 20, 10);
                     sleep(1000);
                     robot.wristDown();
                     sleep(1000);
                     robot.gripperOpen();
                     sleep(1000);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
                     robot.wristUp();
                     sleep(1000);
                     robot.gripperClose();
-                    sleep(1000);
-                    robot.moveRobot(.5, 35, 10);
-                    break;*/
+                    break;
                 case RIGHT:
-                    robot.moveArm(.5, 45, 10);
-                    break;
-                    /*robot.moveRobot(.5, -35, 10);
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(1000);
+                    robot.turnRobot(MotionHardware.Direction.RIGHT, 10, 10, 10);
+                    sleep(1000);
+                    robot.moveArm(.5, 20, 10);
                     sleep(1000);
                     robot.wristDown();
                     sleep(1000);
                     robot.gripperOpen();
                     sleep(1000);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
                     robot.wristUp();
                     sleep(1000);
                     robot.gripperClose();
-                    sleep(1000);
-                    robot.moveRobot(.5, 35, 10);
-                    break;*/
+                    break;
                 case MIDDLE:
-                    robot.moveArm(.5, 45, 10);
-                    break;
-                   /* robot.moveRobot(.5, -35, 10);
+                    robot.moveRobot(.5, -33, 10);
+                    sleep(1000);
+                    robot.moveArm(.5, 20, 10);
                     sleep(1000);
                     robot.wristDown();
                     sleep(1000);
                     robot.gripperOpen();
                     sleep(1000);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
                     robot.wristUp();
                     sleep(1000);
                     robot.gripperClose();
-                    sleep(1000);
-                    robot.moveRobot(.5, 35, 10);
-                    break;*/
-
-
-
-
+                    break;
 
             }
             break;
