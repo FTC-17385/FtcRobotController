@@ -37,8 +37,8 @@ public class MotionHardware {
     public static final double TURN_SPEED = 0.4;
     private static final double MAX_SPEED = 1;
     public static double detectWait = 6.0;
-    public static double wristDown = 0.77;
-    public static double wristUp = 0;
+    public static double wristDown = 1;
+    public static double wristUp = -1;
     public static double PICKUP_POSITION = 0.16;
     public static double DROPOFF_POSITION = 0.78;
 

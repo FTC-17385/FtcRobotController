@@ -76,7 +76,7 @@ public class VisionHardware {
         if (USE_WEBCAM) {
             visionPortalBuilder = new VisionPortal.Builder();
             visionPortalBuilder.setCamera(myOpMode.hardwareMap.get(WebcamName.class, "Webcam 1"));
-            visionPortalBuilder.setCameraResolution(new Size(640, 480));
+            visionPortalBuilder.setCameraResolution(new Size(1280, 720));
             visionPortalBuilder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
             visionPortalBuilder.enableLiveView(true);
             visionPortalBuilder.addProcessors(tfod);

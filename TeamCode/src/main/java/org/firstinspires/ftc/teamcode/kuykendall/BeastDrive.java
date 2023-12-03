@@ -27,8 +27,8 @@ public class BeastDrive extends OpMode {
     private FtcDashboard dashboard;
 
     // Wrist positions
-    public static double PICKUP_POSITION = 0.16;
-    public static double DROPOFF_POSITION = 0.78;
+    public static double PICKUP_POSITION = 0.2;
+    public static double DROPOFF_POSITION = 1;
 
     // Gripper positions
     public static double LEFT_SERVO_OPEN = 0.35;
