@@ -28,7 +28,9 @@ public class BeastDrive extends OpMode {
 
     // Wrist positions
     public static double PICKUP_POSITION = 0.2;
+    public static double FRONTDROP_POSITION = 0.8; // Placeholder value, adjust as needed
     public static double DROPOFF_POSITION = 1;
+    public static double PICKUP_POSITION2 = .8;
 
     // Gripper positions
     public static double LEFT_SERVO_OPEN = 0.35;
@@ -41,14 +43,18 @@ public class BeastDrive extends OpMode {
     public static int DROPOFF_POSITION_ENCODER = -3630;
 
     //driving scales
-    public static double driveScale = .3;
-    public static double strafeScale = .5;
-    public static double rotateScale = .3;
+    public static double driveScale = 1; //was .3
+    public static double strafeScale = 1; // was .5
+    public static double rotateScale = .3; // was .3
 
     // 180 turn constants
     public static double FAST_ROTATE_SPEED = 1.0;
     public static long TURN_180_TIME_MS = 333;
     private boolean isTurning180 = false;
+    // Variable for slowmo state
+    private boolean slowmoActive = false;
+    private boolean slowmoToggle = false; // To track the toggle state
+
     private long turnStartTime = 0;
 
     // Variables from planetest
@@ -56,6 +62,11 @@ public class BeastDrive extends OpMode {
     private TelemetryPacket packet;
     public static double Launch_POSITION = 0.8;
     public static double HOLD_POSITION = 0.3;
+    // Constants for the wider gripper open position
+    public static double LEFT_SERVO_WIDE_OPEN = -0.4; // Adjust as needed
+    public static double RIGHT_SERVO_WIDE_OPEN = 0.5; // Adjust as needed
+    // Driving speed control
+
 
     @Override
     public void init() {
@@ -90,7 +101,7 @@ public class BeastDrive extends OpMode {
     @Override
     public void loop() {
         // plane logic
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             // Move planeServo to position - 1
             planeServo.setPosition(-0.2);
         } else {
@@ -98,7 +109,7 @@ public class BeastDrive extends OpMode {
             // Replace 0.6 with your desired default position
             planeServo.setPosition(0.5);
 
-        if (gamepad1.dpad_right && !isTurning180) {
+        if (gamepad1.dpad_up && !isTurning180) {
             isTurning180 = true;
             turnStartTime = System.currentTimeMillis();
 
@@ -121,9 +132,18 @@ public class BeastDrive extends OpMode {
             return;
         }
         // Introduce separate scales for forward and backward driving
-        double forwardDriveScale = .5; // Set this to your desired scale for forward motion
-        double backwardDriveScale = .3; // Set this to your desired scale for backward motion
+        double forwardDriveScale = 1; // Set this to your desired scale for forward motion (was.5)
+        double backwardDriveScale = 1; // Set this to your desired scale for backward motion (was.3)
 
+            // Toggle slowmo on dpad_up press
+            if (gamepad1.right_stick_button && !slowmoToggle) {
+                slowmoActive = !slowmoActive;
+                slowmoToggle = true;
+            } else if (!gamepad1.right_stick_button) {
+                slowmoToggle = false;
+            }
+
+            double speedModifier = slowmoActive ? 0.25 : 1.0; // Reduce speed to 1/4 if slowmo is active
         // Drivetrain logic
         double rawDrive = -gamepad1.left_stick_y;
         double drive;
@@ -136,12 +156,13 @@ public class BeastDrive extends OpMode {
         double strafe = gamepad1.left_stick_x * strafeScale;
         double rotate = gamepad1.right_stick_x * rotateScale;
 
-        double frontLeftPower = drive + strafe + rotate;
-        double frontRightPower = drive - strafe - rotate;
-        double backLeftPower = drive - strafe + rotate;
-        double backRightPower = drive + strafe - rotate;
+            double frontLeftPower = (drive + strafe + rotate) * speedModifier;
+            double frontRightPower = (drive - strafe - rotate) * speedModifier;
+            double backLeftPower = (drive - strafe + rotate) * speedModifier;
+            double backRightPower = (drive + strafe - rotate) * speedModifier;
 
-        double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+
+            double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
                 Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
         if (maxPower > 1.0) {
             frontLeftPower /= maxPower;
@@ -192,7 +213,7 @@ public class BeastDrive extends OpMode {
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             // Move planeServo to position - 1
             planeServo.setPosition(-0.2);
         } else {
@@ -200,9 +221,55 @@ public class BeastDrive extends OpMode {
             // Replace 0.6 with your desired default position
             planeServo.setPosition(0.5);
         }
+            // Wrist servo control with triggers on gamepad2
+            double wristPosition = wristServo.getPosition();
+            double wristIncrement = 0.01; // Adjust this value for finer control
+
+            if (gamepad2.right_trigger > 0) {
+                // Right trigger on gamepad2 pressed - Move wrist up
+                wristPosition += wristIncrement * gamepad2.right_trigger;
+            } else if (gamepad2.left_trigger > 0) {
+                // Left trigger on gamepad2 pressed - Move wrist down
+                wristPosition -= wristIncrement * gamepad2.left_trigger;
+            }
+
+            // Ensure wrist position remains within valid range
+            wristPosition = Range.clip(wristPosition, 0.0, 1.0);
+            wristServo.setPosition(wristPosition);
+
+            // Gripper logic for gamepad2 - wider open position
+            if (gamepad2.b) {
+                leftGripper.setPosition(LEFT_SERVO_WIDE_OPEN);
+                rightGripper.setPosition(RIGHT_SERVO_WIDE_OPEN);
+            }
+
+            // Wrist logic
+            if (gamepad2.left_bumper) {
+                wristServo.setPosition(PICKUP_POSITION2);
+            }
+
+            armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        // Telemetry
+            if (gamepad2.x) {
+                leftGripper.setPosition(LEFT_SERVO_OPEN);
+                rightGripper.setPosition(RIGHT_SERVO_OPEN);
+            }
+            // Logic to set wrist position based on arm encoder value
+            int armEncoderValue = armMotor.getCurrentPosition();
+            if (armEncoderValue >= -500 && armEncoderValue <= 0) {
+                wristServo.setPosition(DROPOFF_POSITION);
+            } else if (armEncoderValue >= -1750 && armEncoderValue < -510) {
+                wristServo.setPosition(FRONTDROP_POSITION);
+            } else if (armEncoderValue < -1800) {
+                wristServo.setPosition(PICKUP_POSITION);
+            }
+
+
+
+
+
+            // Telemetry
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("Front Left Power", frontLeftMotor.getPower());
         packet.put("Front Right Power", frontRightMotor.getPower());

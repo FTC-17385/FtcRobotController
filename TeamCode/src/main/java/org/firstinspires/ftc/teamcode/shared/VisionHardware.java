@@ -113,12 +113,12 @@ public class VisionHardware {
                         double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
                         double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
-                        if (x < 300) {
+                        if (x < 400) {
                             myOpMode.telemetry.addData("Prop Left", "");
                             myOpMode.telemetry.update();
                             debugWait();
                             return PropPosition.LEFT;
-                        } else if (x > 300) {
+                        } else if (x > 900) {
                             myOpMode.telemetry.addData("Prop Middle", "");
                             myOpMode.telemetry.update();
                             debugWait();
