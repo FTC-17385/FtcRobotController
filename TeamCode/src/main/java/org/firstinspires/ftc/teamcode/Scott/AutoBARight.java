@@ -35,7 +35,7 @@ public class AutoBARight extends LinearOpMode {
                 case UNKNOWN:
                     robot.moveRobot(.5, -18, 10);
                     sleep(500);
-                    robot.turnRobot(MotionHardware.Direction.LEFT, 12, .5, 10);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 16, .5, 10);
                     sleep(500);
                     robot.moveRobot(.5, 10, 10);
                     sleep(500);
@@ -52,7 +52,25 @@ public class AutoBARight extends LinearOpMode {
                     robot.moveRobot(.5, -5, 10);
                     break;
                 case LEFT:
-                    robot.moveRobot(.5, -33, 10);
+                    robot.moveRobot(.5, -18, 10);
+                    sleep(500);
+                    robot.turnRobot(MotionHardware.Direction.RIGHT, 16, .5, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, 10, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -10, 10);
+                    sleep(500);
+                    robot.moveArm(.5, 10, 10);
+                    sleep(500);
+                    robot.wristDown();
+                    sleep(500);
+                    robot.gripperOpen();
+                    sleep(500);
+                    robot.moveArm(.5, 20, 10);
+                    sleep(500);
+                    robot.moveRobot(.5, -5, 10);
+                    break;
+                    /*robot.moveRobot(.5, -33, 10);
                     sleep(500);
                     robot.turnRobot(MotionHardware.Direction.RIGHT, 7, .5, 10);
                     sleep(500);
@@ -71,11 +89,11 @@ public class AutoBARight extends LinearOpMode {
                     robot.moveArm(.5, 20, 10);
                     sleep(500);
                     robot.moveRobot(.5, -5, 10);
-                    break;
+                    break;*/
                 case RIGHT:
                     robot.moveRobot(.5, -18, 10);
                     sleep(500);
-                    robot.turnRobot(MotionHardware.Direction.LEFT, 12, .5, 10);
+                    robot.turnRobot(MotionHardware.Direction.LEFT, 16, .5, 10);
                     sleep(500);
                     robot.moveRobot(.5, 10, 10);
                     sleep(500);
