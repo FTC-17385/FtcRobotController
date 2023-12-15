@@ -119,13 +119,13 @@ public class VisionHardware {
                             debugWait();
                             return PropPosition.LEFT;
                         } else if (x > 300) {
-                            myOpMode.telemetry.addData("Prop Right", "");
+                            myOpMode.telemetry.addData("Prop Middle", "");
                             myOpMode.telemetry.update();
                             debugWait();
                             //return PropPosition.RIGHT;
                             return PropPosition.MIDDLE;
                         } else {
-                            myOpMode.telemetry.addData("Prop Middle", "");
+                            myOpMode.telemetry.addData("Prop Right", "");
                             myOpMode.telemetry.update();
                             debugWait();
                             return PropPosition.RIGHT;

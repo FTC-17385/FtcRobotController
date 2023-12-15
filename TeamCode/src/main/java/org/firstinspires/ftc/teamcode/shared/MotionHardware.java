@@ -134,43 +134,6 @@ public class MotionHardware {
 
 
     }
-    public void moveRobot(String path, double time) {
-
-        switch (path.toLowerCase(Locale.ROOT)) {
-            case "back":
-                frontLeftMotor.setPower(FORWARD_SPEED);
-                backLeftMotor.setPower(FORWARD_SPEED);
-                frontRightMotor.setPower(FORWARD_SPEED);
-                backRightMotor.setPower(FORWARD_SPEED);
-                runtime.reset();
-                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
-                    // telemetry.addData("Path", "%s: %4.1f S Elapsed", path, runtime.seconds());
-                    //telemetry.update();
-                }
-
-                frontLeftMotor.setPower(0);
-                backLeftMotor.setPower(0);
-                frontRightMotor.setPower(0);
-                backRightMotor.setPower(0);
-                break;
-            default:
-                frontLeftMotor.setPower(-FORWARD_SPEED);
-                backLeftMotor.setPower(-FORWARD_SPEED);
-                frontRightMotor.setPower(-FORWARD_SPEED);
-                backRightMotor.setPower(-FORWARD_SPEED);
-                runtime.reset();
-                while (myOpMode.opModeIsActive() && (runtime.seconds() < time)) {
-                    myOpMode.telemetry.addData("Path", "%s: %4.1f S Elapsed", path, runtime.seconds());
-                    myOpMode.telemetry.update();
-                }
-
-                frontLeftMotor.setPower(0);
-                backLeftMotor.setPower(0);
-                frontRightMotor.setPower(0);
-                backRightMotor.setPower(0);
-        }
-    }
-
     //TODO Current we go 1 inch farther than we are telling the robot.
     //TODO The back right motor always goes farther than instructed.  Removing it from the isBusy check
     /**
@@ -238,7 +201,7 @@ public class MotionHardware {
 
         while (myOpMode.opModeIsActive() &&
                 (runtime.seconds() < timeoutS) &&
-                (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy())) {
+                (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy() && backLeftMotor.isBusy())) {
 
             // Display it for the driver.
             myOpMode.telemetry.addData("Running to",  " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
@@ -444,9 +407,9 @@ public class MotionHardware {
         backLeftMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         runtime.reset();
-        frontRightMotor.setPower(Math.abs(speed));
         frontLeftMotor.setPower(Math.abs(speed));
         backRightMotor.setPower(Math.abs(speed));
+        frontRightMotor.setPower(Math.abs(speed));
         backLeftMotor.setPower(Math.abs(speed));
 
         while (myOpMode.opModeIsActive() &&

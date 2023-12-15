@@ -58,8 +58,52 @@ public class DrivePro extends LinearOpMode {
             robot.backLeftMotor.setPower(backLeftPower);
             robot.frontRightMotor.setPower(frontRightPower);
             robot.backRightMotor.setPower(backRightPower);
-            gamepad1.right
         }
     }
+    private void initializePlaneThread() {
+        planeThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.interrupted()) {
+                    //directions
+                }
+            }
+        });
+    }
+    private void initializeLiftThread() {
+        liftThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.interrupted()) {
+                    //directions
+                }
+            }
+        });
+    }
+    private void initializePlacementThread() {
+        placementThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.interrupted()) {
+                    //directions
+                }
+            }
+        });
+    }
+    private void initializeIntakeThread() {
+        intakeThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.interrupted()) {
+                    if (gamepad1.a) {
+
+                    }
+                    //directions
+                }
+            }
+        });
+    }
 }
+
+
 
