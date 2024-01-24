@@ -15,32 +15,32 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import java.util.Locale;
 public class MotionHardware2 {
     public static boolean DEBUG = false;
-    public LinearOpMode myOpMode = null;
-    public ElapsedTime runtime = new ElapsedTime();
-    public DcMotor frontLeftMotor;
-    public DcMotor frontRightMotor;
-    public DcMotor backLeftMotor;
-    public DcMotor backRightMotor;
-    public DcMotor rightLeadScrew;
-    public DcMotor leftLeadScrew;
-    public DcMotor linearExtension;
-    public Servo leftIntakeLifter;
-    public Servo rightIntakeLifter;
-    public Servo intakeWrist;
-    public Servo intake;
-    public Servo bucketWrist;
-    public Servo leftClimb;
-    public Servo rightClimb;
-    public Servo planeServo;
+    private LinearOpMode myOpMode = null;
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor frontLeftMotor = null;
+    private DcMotor frontRightMotor = null;
+    private DcMotor backLeftMotor = null;
+    private DcMotor backRightMotor = null;
+    private DcMotor rightLeadScrew = null;
+    private DcMotor leftLeadScrew = null;
+    private DcMotor linearExtension = null;
+    private Servo intakeWrist = null;
+    private Servo bucketWrist = null;
+    private Servo intakeFingers = null;
+    private Servo intakeArmLeft = null;
+    private Servo intakeArmRight = null;
+    private Servo rightClimb = null;
+    private Servo leftClimb = null;
+    private Servo planeServo = null;
 
-    //Variables
+    // Variables
+
     private static final double SQUARE_SIZE = 23.0;
     public static final double FORWARD_SPEED = 0.4;
     public static final double TURN_SPEED = 0.4;
     private static final double MAX_SPEED = 1;
     public static double detectWait = 6.0;
-    public static double wristDown = 1;
-    public static double wristUp = -1;
+
 
     public enum Direction {
         RIGHT,
@@ -52,10 +52,12 @@ public class MotionHardware2 {
     static final double WHEEL_DIAMETER_INCHES = 4;    //3.778 ;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     public MotionHardware2(LinearOpMode opmode) {
         myOpMode = opmode;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void init() {
 
@@ -106,14 +108,28 @@ public class MotionHardware2 {
         linearExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //TODO Once wrist/gripper is fixed move pixel load step to new function
-        leftIntakeLifter = myOpMode.hardwareMap.get(Servo.class, "leftGripper");
-        rightIntakeLifter = myOpMode.hardwareMap.get(Servo.class, "rightGripper");
+        intakeArmLeft = myOpMode.hardwareMap.get(Servo.class, "intakeArmLeft");
+        intakeArmRight = myOpMode.hardwareMap.get(Servo.class, "intakeArmRight");
         intakeWrist = myOpMode.hardwareMap.get(Servo.class, "intakeWrist");
-        intake = myOpMode.hardwareMap.get(Servo.class, "wristServo");
+        intakeFingers = myOpMode.hardwareMap.get(Servo.class, "intakeFingers");
         bucketWrist = myOpMode.hardwareMap.get(Servo.class, "bucketWrist");
         leftClimb = myOpMode.hardwareMap.get(Servo.class, "leftClimb");
         rightClimb = myOpMode.hardwareMap.get(Servo.class, "rightClimb");
         planeServo = myOpMode.hardwareMap.get(Servo.class, "planeServo");
+
+        runtime.reset();
+        sleep(3000);
+        sleep(1000);
+
+        myOpMode.telemetry.addData("Starting at",  "%7d %7d %7d %7d",
+                frontLeftMotor.getCurrentPosition(),
+                backLeftMotor.getCurrentPosition(),
+                frontRightMotor.getCurrentPosition(),
+                backRightMotor.getCurrentPosition());
+        rightLeadScrew.getCurrentPosition();
+        leftLeadScrew.getCurrentPosition();
+        linearExtension.getCurrentPosition();
+        myOpMode.telemetry.update();
 
 
     }
@@ -154,6 +170,20 @@ public class MotionHardware2 {
                 backRightMotor.setPower(0);
         }
     }
+
+    //TODO Current we go 1 inch farther than we are telling the robot.
+    //TODO The back right motor always goes farther than instructed.  Removing it from the isBusy check
+    /**
+     * Moves robot provided distance using motor encoders.  Reverse movement is achieved
+     * by passing in a negative distance value.  Motion will stop if:
+     * - The motors reach their target
+     * - Timeout has been exceeded
+     * - opMode is cancelled/stopped
+     *
+     * @param  speed    speed of the motor
+     * @param  distance distance in inches you want the robot to move
+     * @param  timeoutS failsafe time to stop motion if motors are still busy
+     */
     public void moveRobot(double speed, double distance, double timeoutS) {
 
         //frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -170,7 +200,7 @@ public class MotionHardware2 {
         frontLeftMotor.setTargetPosition(newFrontLeftTarget);
         backLeftMotor.setTargetPosition(newBackLeftTarget);
         frontRightMotor.setTargetPosition(newFrontRightTarget);
-        backRightMotor.setTargetPosition(newBackLeftTarget);
+        backRightMotor.setTargetPosition(newBackRightTarget);
 
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -209,22 +239,41 @@ public class MotionHardware2 {
         myOpMode.telemetry.update();
         sleep(1000);
     }
-    public void turnRobot(MotionHardware.Direction direction, double distance, double speed, double timeoutS) {
+
+    /////////////////////////////////////////////////lll////////////////////////////////////////////
 
 
+    //Turn Right or Left 90 degrees
+    //TODO Refactor to use new stopRobot() function
+    //TODO Refactor to remove switch statement (redundant now that we are setting direction with ternary)
+    public void turnRobot(Direction direction, double distance, double speed, double timeoutS) {
 
-        int newFrontLeftTarget = (direction == MotionHardware.Direction.LEFT) ?
-                frontLeftMotor.getCurrentPosition() + (int)((-distance) * COUNTS_PER_INCH) :
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
+        //frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        //backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        int newFrontLeftTarget = (direction == Direction.LEFT) ?
+                frontLeftMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH) :
                 frontLeftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-        int newBackLeftTarget = (direction == MotionHardware.Direction.LEFT) ?
-                backLeftMotor.getCurrentPosition() + (int)((-distance) * COUNTS_PER_INCH) :
+        int newBackLeftTarget = (direction == Direction.LEFT) ?
+                backLeftMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH) :
                 backLeftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-        int newFrontRightTarget = (direction == MotionHardware.Direction.LEFT) ?
+        int newFrontRightTarget = (direction == Direction.LEFT) ?
                 frontRightMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH) :
-                frontRightMotor.getCurrentPosition() + (int)((-distance) * COUNTS_PER_INCH);
-        int newBackRightTarget = (direction == MotionHardware.Direction.LEFT) ?
+                frontRightMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH);
+        int newBackRightTarget = (direction == Direction.LEFT) ?
                 backRightMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH) :
-                backRightMotor.getCurrentPosition() + (int)((-distance) * COUNTS_PER_INCH);
+                backRightMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH);
+
+        myOpMode.telemetry.addData("FL FR BL BR", "%7d :%7d :%7d :%7d",
+                newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
+        debugWait();
 
         frontLeftMotor.setTargetPosition(newFrontLeftTarget);
         backLeftMotor.setTargetPosition(newBackLeftTarget);
@@ -246,7 +295,7 @@ public class MotionHardware2 {
             case LEFT:
                 while (myOpMode.opModeIsActive() &&
                         (runtime.seconds() < timeoutS) &&
-                        (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy())) {
+                        (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy() && backRightMotor.isBusy())) {
 
                     // Display it for the driver.
                     myOpMode.telemetry.addData("Running to",  " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
@@ -262,7 +311,7 @@ public class MotionHardware2 {
             case RIGHT:
                 while (myOpMode.opModeIsActive() &&
                         (runtime.seconds() < timeoutS) &&
-                        (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy())) {
+                        (frontLeftMotor.isBusy() && frontRightMotor.isBusy() && backLeftMotor.isBusy() && backRightMotor.isBusy())) {
 
                     // Display it for the driver.
                     myOpMode.telemetry.addData("Running to",  " %7d :%7d :%7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
@@ -277,8 +326,97 @@ public class MotionHardware2 {
                 break;
 
         }
+        debugWait();
     }
-    public void strafe(double distance, double speed, MotionHardware.Direction direction, double timeoutS) {
+
+    // 1 = camera position
+    // 2 = pixel drop position
+
+   /* private void dropProp() {
+        telemetry.addData("Dropping Pixel", "");
+        telemetry.update();
+        leftGripper.setPosition(0.9); // Adjust the position value as needed
+        rightGripper.setPosition(0.1); // Adjust the position value as needed
+        telemetry.addData("Pixel Dropped", "");
+        telemetry.update();
+        myOpMode.sleep(1000);
+    }*/
+
+    // Move along an arc to a grid position in inches relative to the robots current position
+    //TODO This is an untested function
+    public void moveToGridPosition(double xInches, double yInches, double speed) {
+        // Calculate the angle to the target position in radians
+        double angleRadians = Math.atan2(yInches, xInches);
+
+        // Calculate the distance to the target position
+        double distance = Math.hypot(xInches, yInches);
+
+        // Calculate the target encoder counts based on distance
+        int targetCounts = (int) (COUNTS_PER_INCH * distance);
+
+        // Calculate the powers for each motor to achieve the specified angle
+        double frontLeftPower = speed * Math.cos(angleRadians);
+        double backLeftPower = speed * Math.sin(angleRadians);
+        double frontRightPower = speed * Math.sin(angleRadians);
+        double backRightPower = speed * Math.cos(angleRadians);
+
+        // Normalize the powers so that the maximum is 1.0
+        double maxPower = Math.max(
+                Math.max(Math.abs(frontLeftPower), Math.abs(backLeftPower)),
+                Math.max(Math.abs(frontRightPower), Math.abs(backRightPower))
+        );
+
+        frontLeftPower /= maxPower;
+        backLeftPower /= maxPower;
+        frontRightPower /= maxPower;
+        backRightPower /= maxPower;
+
+        // Set the target position for each motor
+        int frontLeftTarget = frontLeftMotor.getCurrentPosition() + targetCounts;
+        int backLeftTarget = backLeftMotor.getCurrentPosition() + targetCounts;
+        int frontRightTarget = frontRightMotor.getCurrentPosition() + targetCounts;
+        int backRightTarget = backRightMotor.getCurrentPosition() + targetCounts;
+
+        // Set the motor targets and run to position mode
+        frontLeftMotor.setTargetPosition(frontLeftTarget);
+        backLeftMotor.setTargetPosition(backLeftTarget);
+        frontRightMotor.setTargetPosition(frontRightTarget);
+        backRightMotor.setTargetPosition(backRightTarget);
+
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Set the motor powers
+        frontLeftMotor.setPower(frontLeftPower);
+        backLeftMotor.setPower(backLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backRightMotor.setPower(backRightPower);
+
+        // Wait until all motors have reached their targets
+        while (frontLeftMotor.isBusy() || backLeftMotor.isBusy() || frontRightMotor.isBusy() || backRightMotor.isBusy()) {
+            // You can add additional logic here if needed
+        }
+
+        // Stop all motors
+        frontLeftMotor.setPower(0);
+        backLeftMotor.setPower(0);
+        frontRightMotor.setPower(0);
+        backRightMotor.setPower(0);
+
+        // Reset motor run mode to RUN_USING_ENCODER
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void moveToGridPosition(double xInches, double yInches) {
+        moveToGridPosition(xInches, yInches, MAX_SPEED);
+    }
+
+    public void strafe(double distance, double speed, Direction direction, double timeoutS) {
         int newFrontLeftTarget = frontLeftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
         int newBackLeftTarget = backLeftMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH);
         int newFrontRightTarget = frontRightMotor.getCurrentPosition() + (int)(-distance * COUNTS_PER_INCH);
@@ -326,12 +464,16 @@ public class MotionHardware2 {
         myOpMode.telemetry.update();
         sleep(1000);
     }
+
     public void stopRobot() {
         frontLeftMotor.setPower(0);
         frontRightMotor.setPower(0);
         backLeftMotor.setPower(0);
         backRightMotor.setPower(0);
     }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     private void debugWait() {
         if (DEBUG) {
             sleep(5000);
@@ -339,5 +481,12 @@ public class MotionHardware2 {
             sleep(1000);
         }
     }
+
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
