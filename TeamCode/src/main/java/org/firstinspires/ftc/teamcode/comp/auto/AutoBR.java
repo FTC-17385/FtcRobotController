@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.comp.auto;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.shared.MotionHardware2.Direction;
 import org.firstinspires.ftc.teamcode.shared.VisionHardware2;
 import org.firstinspires.ftc.teamcode.shared.VisionHardware2.PropPosition;
 
-@Config
+//@Config
 @Autonomous(name = "Auto - BA Right", group = "Auto")
 public class AutoBR extends LinearOpMode {
 

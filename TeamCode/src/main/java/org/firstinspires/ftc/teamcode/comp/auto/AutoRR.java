@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.comp.auto;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.shared.VisionHardware2;
 import org.firstinspires.ftc.teamcode.shared.VisionHardware2.PropPosition;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@Config
+//@Config
 @Autonomous(name = "Auto - RA Right", group = "Auto")
 public class AutoRR extends LinearOpMode {
 
